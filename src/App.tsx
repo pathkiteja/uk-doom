@@ -5,7 +5,6 @@ import Navigation from './components/Navigation';
 import HeroSection from './sections/HeroSection';
 import ProjectsSection from './sections/ProjectsSection';
 import AboutSection from './sections/AboutSection';
-import ArchiveSection from './sections/ArchiveSection';
 import ServicesSection from './sections/ServicesSection';
 import JournalSection from './sections/JournalSection';
 import ContactSection from './sections/ContactSection';
@@ -42,7 +41,6 @@ function App() {
         <HeroSection />
         <ProjectsSection />
         <AboutSection />
-        <ArchiveSection />
         <ServicesSection />
         <JournalSection />
         <ContactSection />

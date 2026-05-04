@@ -1,6 +1,7 @@
 import { useRef, useLayoutEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Footer from '../components/Footer';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -189,21 +190,11 @@ export default function ContactSection() {
         </div>
       </div>
 
-      {/* Footer */}
       <div
         ref={footerRef}
-        className="absolute bottom-0 left-0 right-0 px-[5vw] md:px-[3vw] py-[3vh] md:py-[4vh] border-t border-white/10 will-change-transform"
+        className="absolute bottom-0 left-0 right-0 will-change-transform"
       >
-        <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
-          <p className="text-white/40 text-xs md:text-sm text-center">
-            © 2026 Doma Build Contractors Ltd
-          </p>
-          <div className="flex items-center gap-5 md:gap-6 text-xs md:text-sm text-white/40">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
-          </div>
-        </div>
+        <Footer variant="dark" />
       </div>
     </section>
   );

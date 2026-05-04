@@ -419,6 +419,30 @@ export default function ProjectsSection() {
     setOpenProject(project);
   };
 
+  const goBackToSelected = () => {
+    setOpenProject(null);
+    setOpenCategory(null);
+    window.setTimeout(() => {
+      const el = document.getElementById('projects');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 320);
+  };
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as ProjectCategory | undefined;
+      if (
+        detail === 'commercial' ||
+        detail === 'residential' ||
+        detail === 'community'
+      ) {
+        setOpenCategory(detail);
+      }
+    };
+    window.addEventListener('projects:openCategory', handler);
+    return () => window.removeEventListener('projects:openCategory', handler);
+  }, []);
+
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section || !isDesktop) return;
@@ -539,6 +563,7 @@ export default function ProjectsSection() {
             category={openCategory}
             projects={projects}
             onClose={() => setOpenCategory(null)}
+            onBackToSelected={goBackToSelected}
             onSelectProject={openProjectFromCategory}
           />
         )}
@@ -546,15 +571,15 @@ export default function ProjectsSection() {
         {openProject && (
           <ProjectDetail
             project={openProject}
-            sourceLabel={
+            categoryLabel={
               openCategory
-                ? CATEGORY_ENTRIES.find((c) => c.id === openCategory)?.title ||
-                  'Selected Projects'
-                : 'Selected Projects'
+                ? CATEGORY_ENTRIES.find((c) => c.id === openCategory)?.title
+                : undefined
             }
-            onBackToProjects={
+            onBackToCategory={
               openCategory ? () => setOpenProject(null) : undefined
             }
+            onBackToSelected={goBackToSelected}
             onClose={() => setOpenProject(null)}
           />
         )}
@@ -619,6 +644,7 @@ export default function ProjectsSection() {
           category={openCategory}
           projects={projects}
           onClose={() => setOpenCategory(null)}
+          onBackToSelected={goBackToSelected}
           onSelectProject={openProjectFromCategory}
         />
       )}
@@ -626,15 +652,15 @@ export default function ProjectsSection() {
       {openProject && (
         <ProjectDetail
           project={openProject}
-          sourceLabel={
+          categoryLabel={
             openCategory
-              ? CATEGORY_ENTRIES.find((c) => c.id === openCategory)?.title ||
-                'Selected Projects'
-              : 'Selected Projects'
+              ? CATEGORY_ENTRIES.find((c) => c.id === openCategory)?.title
+              : undefined
           }
-          onBackToProjects={
+          onBackToCategory={
             openCategory ? () => setOpenProject(null) : undefined
           }
+          onBackToSelected={goBackToSelected}
           onClose={() => setOpenProject(null)}
         />
       )}

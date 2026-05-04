@@ -4,6 +4,7 @@ import type {
   ProjectDetailData,
   ProjectCategory,
 } from './ProjectDetail';
+import Footer from './Footer';
 
 const CATEGORY_LABEL: Record<ProjectCategory, string> = {
   commercial: 'Commercial',
@@ -24,6 +25,7 @@ type Props = {
   category: ProjectCategory;
   projects: ProjectDetailData[];
   onClose: () => void;
+  onBackToSelected?: () => void;
   onSelectProject: (project: ProjectDetailData) => void;
 };
 
@@ -50,6 +52,7 @@ export default function CategoryOverlay({
   category,
   projects,
   onClose,
+  onBackToSelected,
   onSelectProject,
 }: Props) {
   const [entered, setEntered] = useState(false);
@@ -93,6 +96,14 @@ export default function CategoryOverlay({
     if (closing) return;
     setClosing(true);
     window.setTimeout(() => onClose(), 720);
+  };
+
+  const goToSelected = () => {
+    if (onBackToSelected) {
+      onBackToSelected();
+      return;
+    }
+    triggerClose();
   };
 
   const innerStyle = (
@@ -227,10 +238,27 @@ export default function CategoryOverlay({
               <span className="sm:hidden">Back</span>
             </span>
           </button>
-          <nav className="text-[10px] md:text-xs uppercase tracking-[0.16em] text-white/55 truncate max-w-[55vw]">
-            <span className="hidden sm:inline">Doma Build</span>
+          <nav
+            aria-label="Breadcrumb"
+            className="text-[10px] md:text-xs uppercase tracking-[0.16em] text-white/55 truncate max-w-[55vw]"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = '/';
+              }}
+              className="hidden sm:inline hover:text-white transition-colors duration-300"
+            >
+              Doma Build
+            </button>
             <span className="hidden sm:inline mx-2 text-white/25">/</span>
-            <span className="hidden sm:inline">Selected Projects</span>
+            <button
+              type="button"
+              onClick={goToSelected}
+              className="hidden sm:inline hover:text-white transition-colors duration-300"
+            >
+              Selected Projects
+            </button>
             <span className="hidden sm:inline mx-2 text-white/25">/</span>
             <span className="text-white/85">{label}</span>
           </nav>
@@ -319,6 +347,8 @@ export default function CategoryOverlay({
             </div>
           </>
         )}
+
+        <Footer variant="dark" />
       </div>
     </div>,
     document.body

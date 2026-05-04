@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Footer from './Footer';
 
 export type ProjectCategory = 'commercial' | 'residential' | 'community';
 export type ProjectStatus = 'present' | 'past';
@@ -19,22 +20,32 @@ export type ProjectDetailData = {
 
 type Props = {
   project: ProjectDetailData;
-  sourceLabel?: string;
-  onBackToProjects?: () => void;
+  categoryLabel?: string;
   onClose: () => void;
+  onBackToCategory?: () => void;
+  onBackToSelected?: () => void;
 };
 
 const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 export default function ProjectDetail({
   project,
-  sourceLabel = 'Selected Projects',
-  onBackToProjects,
+  categoryLabel,
   onClose,
+  onBackToCategory,
+  onBackToSelected,
 }: Props) {
+  const backLabel = categoryLabel || 'Selected Projects';
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
   const [galleryIdx, setGalleryIdx] = useState(0);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: '',
+  });
+  const [submitted, setSubmitted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const overviewRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -77,33 +88,14 @@ export default function ProjectDetail({
     window.setTimeout(() => onClose(), 720);
   };
 
-  const goToContact = () => {
-    if (closing) return;
-    setClosing(true);
-    window.setTimeout(() => {
-      onClose();
-      window.requestAnimationFrame(() => {
-        const el = document.getElementById('contact');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }, 720);
-  };
-
   const goToHome = () => {
-    if (closing) return;
-    setClosing(true);
-    window.setTimeout(() => {
-      onClose();
-      window.requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }, 720);
+    window.location.href = '/';
   };
 
-  const goToProjects = () => {
+  const goToSelected = () => {
     if (closing) return;
-    if (onBackToProjects) {
-      onBackToProjects();
+    if (onBackToSelected) {
+      onBackToSelected();
       return;
     }
     setClosing(true);
@@ -114,6 +106,23 @@ export default function ProjectDetail({
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }, 720);
+  };
+
+  const goToCategory = () => {
+    if (closing) return;
+    if (onBackToCategory) {
+      onBackToCategory();
+      return;
+    }
+    triggerClose();
+  };
+
+  const handleBack = () => {
+    if (onBackToCategory) {
+      onBackToCategory();
+      return;
+    }
+    triggerClose();
   };
 
   const scrollTo = (target: React.RefObject<HTMLDivElement | null>) => {
@@ -146,14 +155,14 @@ export default function ProjectDetail({
         <div className="sticky top-0 z-30 flex flex-col gap-3 px-[5vw] md:px-[3vw] pt-[2vh] md:pt-[2.4vh] pb-[1.6vh] md:pb-[1.8vh] bg-[#0E0E0E]/70 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-3">
             <button
-              onClick={triggerClose}
+              onClick={handleBack}
               className="group inline-flex items-center gap-2 md:gap-3 text-white/80 hover:text-white transition-colors duration-300"
             >
               <span className="inline-flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/30 group-hover:border-white transition-colors duration-300">
                 <span className="inline-block transition-transform duration-300 group-hover:-translate-x-0.5">←</span>
               </span>
               <span className="text-[10px] md:text-xs uppercase tracking-[0.16em]">
-                <span className="hidden sm:inline">Back to {sourceLabel}</span>
+                <span className="hidden sm:inline">Back to {backLabel}</span>
                 <span className="sm:hidden">Back</span>
               </span>
             </button>
@@ -171,11 +180,23 @@ export default function ProjectDetail({
               <span className="hidden sm:inline mx-2 text-white/25">/</span>
               <button
                 type="button"
-                onClick={goToProjects}
+                onClick={goToSelected}
                 className="hidden sm:inline hover:text-white transition-colors duration-300"
               >
-                {sourceLabel}
+                Selected Projects
               </button>
+              {categoryLabel && (
+                <>
+                  <span className="hidden sm:inline mx-2 text-white/25">/</span>
+                  <button
+                    type="button"
+                    onClick={goToCategory}
+                    className="hidden sm:inline hover:text-white transition-colors duration-300"
+                  >
+                    {categoryLabel}
+                  </button>
+                </>
+              )}
               <span className="hidden sm:inline mx-2 text-white/25">/</span>
               <span className="text-white/85">{project.title}</span>
             </nav>
@@ -349,35 +370,137 @@ export default function ProjectDetail({
 
         <div
           ref={contactRef}
-          className="px-[5vw] md:px-[3vw] pb-[12vh] md:pb-[14vh] flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8 border-t border-white/10 pt-[6vh] md:pt-[8vh]"
+          className="px-[5vw] md:px-[3vw] py-[8vh] md:py-[10vh] border-t border-white/10 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-8"
         >
           <div>
-            <div className="text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-white/45 mb-3">
+            <div className="text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-white/45 mb-3 md:mb-4">
               Enquire about this project
             </div>
-            <h3 className="font-serif text-white text-[clamp(22px,3.4vw,52px)] leading-[1.05] max-w-[28ch]">
+            <h3 className="font-serif text-white text-[clamp(26px,3.4vw,52px)] leading-[1.05] max-w-[20ch] mb-5 md:mb-7">
               Talk to us about {project.title}.
             </h3>
-            <p className="mt-4 text-white/65 text-[14px] md:text-[16px] leading-[1.6] max-w-[52ch]">
-              Send us a note and we'll come back with a sensible next step — a site visit, a similar reference, or a candid view of feasibility.
+            <p className="text-white/65 text-[14px] md:text-[16px] leading-[1.65] max-w-[48ch] mb-7 md:mb-10">
+              Send us a note and we'll come back with a sensible next step — a
+              site visit, a similar reference, or a candid view of feasibility.
             </p>
+
+            <div className="space-y-2.5 md:space-y-3">
+              <a
+                href="mailto:hello@domabuild.co.uk"
+                className="block text-[15px] md:text-[18px] break-all text-white hover:text-doma-gold transition-colors duration-300"
+              >
+                hello@domabuild.co.uk
+              </a>
+              <a
+                href="tel:+442079460123"
+                className="block text-[15px] md:text-[18px] text-white hover:text-doma-gold transition-colors duration-300"
+              >
+                +44 (0)20 7946 0123
+              </a>
+              <p className="text-white/45 text-[13px] md:text-[14px] leading-[1.6] pt-2">
+                Unit 4, Arches Industrial Estate
+                <br />
+                London E1 4RP
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col items-start md:items-end gap-3 self-start md:self-auto">
-            <button
-              onClick={goToContact}
-              className="group inline-flex items-center gap-3 px-6 py-3 rounded-full border border-white/40 text-white text-xs md:text-sm uppercase tracking-[0.16em] hover:bg-white hover:text-doma-text transition-colors duration-300"
-            >
-              <span>Contact about this project</span>
-              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </button>
-            <button
-              onClick={triggerClose}
-              className="group inline-flex items-center gap-2 text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-white/55 hover:text-white transition-colors duration-300"
-            >
-              <span>← Back to {sourceLabel}</span>
-            </button>
+
+          <div className="bg-white/5 backdrop-blur-sm rounded-md p-5 md:p-8">
+            {submitted ? (
+              <div className="h-full min-h-[280px] flex items-center justify-center">
+                <p className="text-doma-gold text-base md:text-lg text-center">
+                  Thank you. We will be in touch shortly.
+                </p>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setSubmitted(true);
+                  window.setTimeout(() => setSubmitted(false), 3000);
+                }}
+                className="space-y-5"
+              >
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors"
+                    placeholder="Your name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors"
+                    placeholder="your@email.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors"
+                    placeholder="+44..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors resize-none"
+                    placeholder={`Tell us about ${project.title}...`}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="mt-2 px-8 py-3 border border-doma-gold text-doma-gold text-sm uppercase tracking-wider rounded-full hover:bg-doma-gold hover:text-doma-dark transition-colors duration-300"
+                >
+                  Send
+                </button>
+              </form>
+            )}
           </div>
         </div>
+
+        <div className="px-[5vw] md:px-[3vw] pb-[6vh] md:pb-[8vh] flex justify-start">
+          <button
+            onClick={handleBack}
+            className="group inline-flex items-center gap-2 text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-white/55 hover:text-white transition-colors duration-300"
+          >
+            <span>← Back to {backLabel}</span>
+          </button>
+        </div>
+
+        <Footer variant="dark" />
       </div>
     </div>,
     document.body

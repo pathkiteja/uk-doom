@@ -1,10 +1,19 @@
-import { useRef, useLayoutEffect, useState } from 'react';
+import { useRef, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import AboutDetail from '../components/AboutDetail';
-import type { AboutArea } from '../components/AboutDetail';
 
 gsap.registerPlugin(ScrollTrigger);
+
+type AboutArea = {
+  id: 'expertise' | 'team' | 'services';
+  num: string;
+  title: string;
+  intro: string;
+  body: string;
+  image: string;
+  highlights: { label: string; value: string }[];
+  bullets?: string[];
+};
 
 const areas: AboutArea[] = [
   {
@@ -64,16 +73,24 @@ const areas: AboutArea[] = [
   },
 ];
 
-const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-const HOVER_DURATION = 700;
+const credentials: { value: string; label: string }[] = [
+  { value: '18+', label: 'Years of build experience' },
+  { value: '120+', label: 'Projects delivered' },
+  { value: '96%', label: 'On-budget delivery' },
+  { value: '94%', label: 'On-time delivery' },
+  { value: 'FMB', label: 'Federation accredited' },
+];
+
+const goToContact = () => {
+  const el = document.getElementById('contact');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
 
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
-  const tilesRef = useRef<HTMLDivElement>(null);
-
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [openArea, setOpenArea] = useState<number | null>(null);
+  const credsRef = useRef<HTMLDivElement>(null);
+  const pillarsRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -97,21 +114,39 @@ export default function AboutSection() {
       );
 
       gsap.fromTo(
-        tilesRef.current?.querySelectorAll('.about-tile') || [],
-        { y: 60, opacity: 0 },
+        credsRef.current?.querySelectorAll('.cred-stat') || [],
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          stagger: 0.12,
+          stagger: 0.08,
           ease: 'power2.out',
           scrollTrigger: {
-            trigger: tilesRef.current,
-            start: 'top 80%',
-            end: 'top 40%',
+            trigger: credsRef.current,
+            start: 'top 85%',
+            end: 'top 55%',
             scrub: 0.5,
           },
         }
       );
+
+      gsap.utils.toArray<HTMLElement>('.pillar-row').forEach((el) => {
+        gsap.fromTo(
+          el,
+          { y: 60, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              end: 'top 55%',
+              scrub: 0.6,
+            },
+          }
+        );
+      });
     }, section);
 
     return () => ctx.revert();
@@ -119,149 +154,165 @@ export default function AboutSection() {
 
   return (
     <section
+      id="about"
       ref={sectionRef}
-      className="relative z-30 bg-doma-bg pt-[14vh] pb-[10vh] md:py-[16vh] overflow-hidden"
+      className="relative z-30 bg-doma-bg pt-[14vh] pb-[12vh] md:pt-[16vh] md:pb-[14vh] overflow-hidden"
     >
-      <div className="absolute left-[5vw] md:left-[3vw] top-[5vh] md:top-[6vh] label-upper">ABOUT</div>
+      <div className="absolute left-[5vw] md:left-[3vw] top-[5vh] md:top-[6vh] label-upper">
+        ABOUT
+      </div>
 
-      <div className="px-[5vw] md:px-[3vw] grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 items-end mb-[6vh] md:mb-[8vh]">
-        <div ref={headingRef} className="lg:col-span-8 will-change-transform">
-          <h2 className="section-heading text-doma-text max-w-[18ch]">
+      <div
+        ref={headingRef}
+        className="px-[5vw] md:px-[3vw] grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-end mb-[8vh] md:mb-[10vh] will-change-transform"
+      >
+        <div className="lg:col-span-7">
+          <h2 className="section-heading text-doma-text leading-[1.02] max-w-[18ch]">
             A team that builds with clarity.
           </h2>
         </div>
-        <p className="lg:col-span-4 text-doma-muted text-[14px] md:text-[16px] leading-[1.6] max-w-[40ch] lg:justify-self-end">
-          Three things shape every project we deliver — the depth of what we know, the people on site, and the way we hold the build together.
-        </p>
+        <div className="lg:col-span-4 lg:col-start-9">
+          <p className="text-doma-text/70 text-[15px] md:text-[17px] leading-[1.65] max-w-[44ch]">
+            Three things shape every project we deliver — the depth of what we
+            know, the people on site, and the way we hold the build together.
+          </p>
+          <div className="mt-5 md:mt-6 inline-flex items-center gap-3 text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-doma-muted">
+            <span className="w-8 h-px bg-doma-text/30" />
+            <span>Doma Build · since 2007</span>
+          </div>
+        </div>
       </div>
 
-      <div ref={tilesRef} className="px-[5vw] md:px-[3vw] grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 lg:gap-6">
+      <div
+        ref={credsRef}
+        className="border-y border-doma-text/10 bg-doma-text/[0.02]"
+      >
+        <div className="px-[5vw] md:px-[3vw] grid grid-cols-2 md:grid-cols-5">
+          {credentials.map((c, i) => (
+            <div
+              key={c.label}
+              className={`cred-stat px-3 sm:px-4 md:px-6 py-6 md:py-9 will-change-transform border-doma-text/10
+                ${i % 2 === 1 ? 'border-l md:border-l-0' : ''}
+                ${i >= 2 ? 'border-t md:border-t-0' : ''}
+                ${i > 0 ? 'md:border-l' : ''}`}
+            >
+              <div className="font-serif text-doma-text text-[clamp(28px,3.6vw,56px)] leading-[1] tabular-nums">
+                {c.value}
+              </div>
+              <div className="mt-2.5 md:mt-4 text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-doma-muted leading-[1.4] max-w-[20ch]">
+                {c.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
+        ref={pillarsRef}
+        className="mt-[10vh] md:mt-[14vh] flex flex-col gap-[10vh] md:gap-[14vh]"
+      >
         {areas.map((area, idx) => (
-          <Tile
+          <PillarRow
             key={area.id}
             area={area}
-            idx={idx}
-            hovered={hovered}
-            onEnter={() => setHovered(idx)}
-            onLeave={() => setHovered((h) => (h === idx ? null : h))}
-            onClick={() => setOpenArea(idx)}
+            reverse={idx % 2 === 1}
           />
         ))}
       </div>
 
-      <div className="px-[5vw] md:px-[3vw] mt-[8vh] md:mt-[10vh] flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6">
-        <p className="text-doma-muted text-[14px] md:text-[15px] leading-[1.6] max-w-[44ch]">
-          Each of these opens into a deeper view — process, people, and the work that sits behind the headline.
-        </p>
-        <div className="text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-doma-muted">
-          Tap any card to read more
+      <div className="mt-[12vh] md:mt-[14vh] px-[5vw] md:px-[3vw] border-t border-doma-text/10 pt-[6vh] md:pt-[8vh] flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8">
+        <div>
+          <div className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-doma-muted mb-3 md:mb-4">
+            Next step
+          </div>
+          <h3 className="font-serif text-doma-text text-[clamp(24px,3.6vw,56px)] leading-[1.05] max-w-[26ch]">
+            Want to understand how we'd hold your build together?
+          </h3>
         </div>
+        <button
+          onClick={goToContact}
+          className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full border border-doma-text text-doma-text text-xs md:text-sm uppercase tracking-[0.18em] font-semibold hover:bg-doma-text hover:text-doma-bg transition-colors duration-500 self-start md:self-auto shrink-0"
+        >
+          <span>Start a conversation</span>
+          <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+        </button>
       </div>
-
-      {openArea !== null && (
-        <AboutDetail
-          area={areas[openArea]}
-          onClose={() => setOpenArea(null)}
-        />
-      )}
     </section>
   );
 }
 
-type TileProps = {
+type PillarProps = {
   area: AboutArea;
-  idx: number;
-  hovered: number | null;
-  onEnter: () => void;
-  onLeave: () => void;
-  onClick: () => void;
+  reverse: boolean;
 };
 
-function Tile({ area, idx, hovered, onEnter, onLeave, onClick }: TileProps) {
-  const isActive = hovered === idx;
-  const isDimmed = hovered !== null && hovered !== idx;
-
-  const style: React.CSSProperties = {
-    transition: `transform ${HOVER_DURATION}ms ${EASE}, opacity ${HOVER_DURATION}ms ${EASE}, box-shadow ${HOVER_DURATION}ms ${EASE}`,
-    transform: isActive ? 'translateY(-6px)' : 'translateY(0)',
-    opacity: isDimmed ? 0.55 : 1,
-    boxShadow: isActive
-      ? '0 30px 70px rgba(0,0,0,0.18), 0 12px 28px rgba(0,0,0,0.10)'
-      : '0 6px 18px rgba(0,0,0,0.06)',
-  };
-
+function PillarRow({ area, reverse }: PillarProps) {
   return (
-    <button
-      type="button"
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-      onClick={onClick}
-      className="about-tile group relative text-left rounded-md overflow-hidden bg-doma-dark cursor-pointer will-change-transform"
-      style={style}
-    >
-      <div className="relative aspect-[4/5] overflow-hidden">
-        <img
-          src={area.image}
-          alt={area.title}
-          className="absolute inset-0 w-full h-full object-cover transition-transform [transition-duration:1100ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
-          style={{
-            opacity: isActive ? 1 : 0.78,
-            transition: `opacity ${HOVER_DURATION}ms ${EASE}, transform 1100ms ${EASE}`,
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/15" />
-
-        <div className="absolute inset-0 p-5 md:p-[2vw] flex flex-col justify-between text-white">
-          <div className="flex items-start justify-between">
-            <div className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-white/70">
+    <div className="pillar-row px-[5vw] md:px-[3vw] grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start will-change-transform">
+      <div
+        className={`lg:col-span-7 ${reverse ? 'lg:order-2 lg:col-start-6' : ''}`}
+      >
+        <div className="relative w-full aspect-[16/10] md:aspect-[3/2] rounded-md overflow-hidden shadow-card group">
+          <img
+            src={area.image}
+            alt={area.title}
+            className="absolute inset-0 w-full h-full object-cover transition-transform [transition-duration:1100ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute left-5 md:left-7 bottom-5 md:bottom-7 flex items-center gap-3 text-white">
+            <span className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-white/85 tabular-nums">
               {area.num} / 03
-            </div>
-            <span
-              className="inline-flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full border border-white/30 transition-colors duration-300 group-hover:border-white"
-              style={{
-                transform: isActive ? 'translate(2px, -2px) rotate(-12deg)' : 'rotate(0deg)',
-                transition: `transform ${HOVER_DURATION}ms ${EASE}, border-color ${HOVER_DURATION}ms ${EASE}`,
-              }}
-            >
-              <span className="text-base">↗</span>
             </span>
-          </div>
-
-          <div>
-            <h3 className="font-serif text-[clamp(24px,2.6vw,40px)] leading-[1.05]">
-              {area.title}
-            </h3>
-            <p
-              className="mt-3 max-w-[34ch] text-white/75 text-[13px] md:text-[15px] leading-[1.55]"
-              style={{
-                opacity: isActive ? 1 : 0.85,
-                transform: isActive ? 'translateY(0)' : 'translateY(2px)',
-                transition: `opacity ${HOVER_DURATION}ms ${EASE}, transform ${HOVER_DURATION}ms ${EASE}`,
-              }}
-            >
-              {area.intro}
-            </p>
-            <div
-              className="mt-5 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/85"
-              style={{
-                opacity: isActive ? 1 : 0.7,
-                transition: `opacity ${HOVER_DURATION}ms ${EASE}`,
-              }}
-            >
-              <span>Read more</span>
-              <span
-                className="inline-block"
-                style={{
-                  transform: isActive ? 'translateX(4px)' : 'translateX(0)',
-                  transition: `transform ${HOVER_DURATION}ms ${EASE}`,
-                }}
-              >
-                →
-              </span>
-            </div>
+            <span className="w-10 h-px bg-white/50" />
           </div>
         </div>
       </div>
-    </button>
+
+      <div
+        className={`lg:col-span-5 ${reverse ? 'lg:order-1 lg:col-start-1 lg:pr-[3vw]' : 'lg:pl-[2vw]'}`}
+      >
+        <div className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-doma-gold mb-4 md:mb-5">
+          {area.num} — Pillar
+        </div>
+        <h3 className="font-serif text-doma-text text-[clamp(28px,4.2vw,68px)] leading-[1.05] mb-5 md:mb-6">
+          {area.title}
+        </h3>
+        <p className="text-doma-text/85 text-[15px] md:text-[18px] leading-[1.65] max-w-[46ch] mb-5 md:mb-6 font-light">
+          {area.intro}
+        </p>
+        <p className="text-doma-text/70 text-[14px] md:text-[16px] leading-[1.7] max-w-[52ch] mb-7 md:mb-9 font-light">
+          {area.body}
+        </p>
+
+        <div className="grid grid-cols-3 gap-4 md:gap-6 border-t border-doma-text/10 pt-5 md:pt-6">
+          {area.highlights.map((h) => (
+            <div key={h.label}>
+              <div className="text-[9px] md:text-[10px] uppercase tracking-[0.22em] text-doma-muted mb-1.5 md:mb-2 leading-[1.4]">
+                {h.label}
+              </div>
+              <div className="font-serif text-doma-text text-[16px] md:text-[22px] leading-[1.15] tabular-nums">
+                {h.value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {area.bullets && (
+          <ul className="mt-7 md:mt-9 grid grid-cols-1 sm:grid-cols-2 gap-x-8 md:gap-x-10 gap-y-1 md:gap-y-2 border-t border-doma-text/10 pt-5 md:pt-6">
+            {area.bullets.map((b) => (
+              <li
+                key={b}
+                className="flex items-baseline gap-3 py-2 md:py-2.5 border-b border-doma-text/8 text-doma-text"
+              >
+                <span className="inline-block w-5 md:w-6 h-px bg-doma-gold flex-shrink-0 translate-y-[-3px]" />
+                <span className="text-[13px] md:text-[15px]">{b}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }

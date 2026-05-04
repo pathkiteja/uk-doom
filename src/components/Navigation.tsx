@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
 const categories = [
-  { label: 'Commercial', href: '#projects', filter: 'commercial' },
-  { label: 'Residential', href: '#projects', filter: 'residential' },
-  { label: 'Community', href: '#projects', filter: 'community' },
+  { label: 'Commercial', category: 'commercial' as const },
+  { label: 'Residential', category: 'residential' as const },
+  { label: 'Community', category: 'community' as const },
 ];
 
 export default function Navigation() {
@@ -27,19 +27,27 @@ export default function Navigation() {
     };
   }, [menuOpen]);
 
-  const goTo = (href: string, filter?: string) => {
+  const goTo = (href: string) => {
     setMenuOpen(false);
-    if (filter) {
-      window.dispatchEvent(
-        new CustomEvent('projects:filter', { detail: filter })
-      );
-    }
     window.setTimeout(() => {
       const id = href.replace('#', '');
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       else if (href === '#home')
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 320);
+  };
+
+  const openCategory = (category: 'commercial' | 'residential' | 'community') => {
+    setMenuOpen(false);
+    window.setTimeout(() => {
+      const el = document.getElementById('projects');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent('projects:openCategory', { detail: category })
+        );
+      }, 380);
     }, 320);
   };
 
@@ -54,10 +62,10 @@ export default function Navigation() {
       >
         <div className="flex items-center justify-between px-[3vw] py-4">
           <a
-            href="#home"
+            href="/"
             onClick={(e) => {
               e.preventDefault();
-              goTo('#home');
+              window.location.href = '/';
             }}
             className={`text-lg font-serif tracking-tight transition-colors duration-300 ${
               isScrolled ? 'text-doma-text' : 'text-white'
@@ -123,7 +131,7 @@ export default function Navigation() {
                 {categories.map((c) => (
                   <li key={c.label}>
                     <button
-                      onClick={() => goTo(c.href, c.filter)}
+                      onClick={() => openCategory(c.category)}
                       className="group inline-flex items-center gap-3 text-left text-white/85 hover:text-doma-gold transition-colors duration-300"
                     >
                       <span className="inline-block w-6 h-px bg-white/30 group-hover:bg-doma-gold group-hover:w-10 transition-all duration-300" />
