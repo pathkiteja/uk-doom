@@ -159,7 +159,7 @@ export default function CategoryOverlay({
     }
 
     return (
-      <div className="relative w-full h-[80vh] px-[3vw]">
+      <div className="relative w-full h-[80vh] overflow-hidden">
         {items[0] && (
           <Card
             position="absolute left-[3vw] top-0 w-[62vw] h-[64vh]"
