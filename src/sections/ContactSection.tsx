@@ -89,27 +89,27 @@ export default function ContactSection() {
     <section
       id="contact"
       ref={sectionRef}
-      className="relative z-70 bg-doma-dark text-white py-[10vh] md:py-[14vh]"
+      className="relative z-70 bg-doma-dark text-white pt-[10vh] md:pt-[14vh] pb-[24vh] md:pb-[18vh]"
     >
-      <div className="px-[3vw] grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8">
+      <div className="px-[5vw] md:px-[3vw] grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-8">
         {/* Left Contact Info */}
         <div ref={contactRef} className="will-change-transform">
-          <h2 className="section-heading text-white mb-8">Start a project</h2>
+          <h2 className="section-heading text-white mb-6 md:mb-8">Start a project</h2>
 
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             <a
               href="mailto:hello@domabuild.co.uk"
-              className="block text-lg md:text-xl hover:text-doma-gold transition-colors duration-300"
+              className="block text-base md:text-xl break-all hover:text-doma-gold transition-colors duration-300"
             >
               hello@domabuild.co.uk
             </a>
             <a
               href="tel:+442079460123"
-              className="block text-lg md:text-xl hover:text-doma-gold transition-colors duration-300"
+              className="block text-base md:text-xl hover:text-doma-gold transition-colors duration-300"
             >
               +44 (0)20 7946 0123
             </a>
-            <p className="text-doma-muted text-base mt-4">
+            <p className="text-doma-muted text-sm md:text-base mt-4">
               Unit 4, Arches Industrial Estate<br />
               London E1 4RP
             </p>
@@ -119,7 +119,7 @@ export default function ContactSection() {
         {/* Right Form */}
         <div
           ref={formRef}
-          className="bg-white/5 backdrop-blur-sm rounded-md p-6 md:p-8 will-change-transform"
+          className="bg-white/5 backdrop-blur-sm rounded-md p-5 md:p-8 will-change-transform"
         >
           {submitted ? (
             <div className="h-full flex items-center justify-center">
@@ -192,13 +192,13 @@ export default function ContactSection() {
       {/* Footer */}
       <div
         ref={footerRef}
-        className="absolute bottom-0 left-0 right-0 px-[3vw] py-[4vh] border-t border-white/10 will-change-transform"
+        className="absolute bottom-0 left-0 right-0 px-[5vw] md:px-[3vw] py-[3vh] md:py-[4vh] border-t border-white/10 will-change-transform"
       >
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/40 text-sm">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+          <p className="text-white/40 text-xs md:text-sm text-center">
             © 2026 Doma Build Contractors Ltd
           </p>
-          <div className="flex items-center gap-6 text-sm text-white/40">
+          <div className="flex items-center gap-5 md:gap-6 text-xs md:text-sm text-white/40">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
             <a href="#" className="hover:text-white transition-colors">LinkedIn</a>

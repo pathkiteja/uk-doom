@@ -8,10 +8,7 @@ export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const wordmarkRef = useRef<HTMLHeadingElement>(null);
-  const labelRef = useRef<HTMLDivElement>(null);
-  const metaRef = useRef<HTMLDivElement>(null);
-  const subRef = useRef<HTMLParagraphElement>(null);
-  const scrollHintRef = useRef<HTMLDivElement>(null);
+  const glassRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -32,63 +29,79 @@ export default function HeroSection() {
           { y: 40, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.9, stagger: 0.1 },
           '-=0.6'
-        )
-        .fromTo(
-          [labelRef.current, metaRef.current, subRef.current, scrollHintRef.current],
-          { x: (i) => (i % 2 === 0 ? -20 : 20), opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.7, stagger: 0.08 },
-          '-=0.5'
         );
 
-      // Scroll-driven exit animation
+      // Scroll-driven glass morph + exit animation
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: '+=130%',
+          end: '+=80%',
           pin: true,
           scrub: 0.6,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onLeaveBack: () => {
-            // Reset all elements to visible when scrolling back to top
-            gsap.set([bgRef.current, wordmarkRef.current, labelRef.current, metaRef.current, subRef.current, scrollHintRef.current], {
+            gsap.set([bgRef.current, wordmarkRef.current], {
               opacity: 1,
               x: 0,
               y: 0,
               scale: 1,
             });
+            gsap.set(glassRef.current, {
+              xPercent: -50,
+              yPercent: -50,
+              scale: 1,
+              opacity: 1,
+              '--glass-blur': '8px',
+            });
           },
         },
       });
 
-      // EXIT phase (70-100%)
+      // Glass panel is fixed in size — centered around the wordmark
+      gsap.set(glassRef.current, {
+        xPercent: -50,
+        yPercent: -50,
+        opacity: 1,
+        '--glass-blur': '8px',
+      });
+
+      // Blur intensifies as user scrolls (0 -> 0.85 of scroll)
       scrollTl.fromTo(
-        wordmarkRef.current,
-        { y: 0, opacity: 1 },
-        { y: '-18vh', opacity: 0, ease: 'power2.in' },
-        0.7
+        glassRef.current,
+        { '--glass-blur': '8px' },
+        {
+          '--glass-blur': '36px',
+          ease: 'none',
+          duration: 0.85,
+        },
+        0
       );
 
-      scrollTl.fromTo(
+      // Background subtle parallax across full scroll
+      scrollTl.to(
         bgRef.current,
-        { scale: 1, y: 0 },
-        { scale: 1.06, y: '-6vh', ease: 'none' },
-        0.7
+        { scale: 1.06, y: '-6vh', ease: 'none', duration: 1 },
+        0
       );
 
-      scrollTl.fromTo(
-        [labelRef.current, metaRef.current],
-        { x: 0, opacity: 1 },
-        { x: '-6vw', opacity: 0, ease: 'power2.in' },
-        0.7
+      // EXIT — wordmark and glass fade out tightly at the end (0.85 -> 1.0)
+      scrollTl.to(
+        wordmarkRef.current,
+        { y: '-14vh', opacity: 0, ease: 'power2.in', duration: 0.15 },
+        0.85
       );
 
-      scrollTl.fromTo(
-        [subRef.current, scrollHintRef.current],
-        { x: 0, opacity: 1 },
-        { x: '6vw', opacity: 0, ease: 'power2.in' },
-        0.7
+      scrollTl.to(
+        glassRef.current,
+        {
+          opacity: 0,
+          scale: 0.96,
+          ease: 'power2.in',
+          duration: 0.15,
+        },
+        0.85
       );
     }, section);
 
@@ -114,49 +127,22 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
       </div>
 
-      {/* Vertical Label */}
+      {/* Glass Morph — grows + blurs on scroll */}
       <div
-        ref={labelRef}
-        className="absolute left-[2.2vw] top-1/2 -translate-y-1/2 -rotate-90 origin-center label-upper text-white/80 will-change-transform"
-      >
-        CONTRACTORS • LONDON
-      </div>
+        ref={glassRef}
+        className="glass-morph absolute left-1/2 top-1/2 will-change-transform"
+      />
 
       {/* Wordmark */}
       <h1
         ref={wordmarkRef}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-center will-change-transform"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-center will-change-transform z-10 w-full px-6"
       >
-        <span className="wordmark block">
+        <span className="wordmark block whitespace-nowrap">
           <span className="word inline-block">DOMA</span>{' '}
           <span className="word inline-block">BUILD</span>
         </span>
       </h1>
-
-      {/* Bottom Left Meta */}
-      <div
-        ref={metaRef}
-        className="absolute left-[3vw] bottom-[3vh] text-white/60 text-xs font-medium tracking-wider will-change-transform"
-      >
-        © 2026
-      </div>
-
-      {/* Bottom Center Subtext */}
-      <p
-        ref={subRef}
-        className="absolute left-1/2 bottom-[3.2vh] -translate-x-1/2 text-white/80 text-sm md:text-base max-w-[38vw] text-center will-change-transform"
-      >
-        Premium construction, delivered with precision.
-      </p>
-
-      {/* Bottom Right Scroll Hint */}
-      <div
-        ref={scrollHintRef}
-        className="absolute right-[3vw] bottom-[3vh] text-white/60 text-xs font-medium uppercase tracking-wider will-change-transform flex items-center gap-3"
-      >
-        <span>Scroll to explore</span>
-        <div className="w-12 h-px bg-white/40" />
-      </div>
     </section>
   );
 }

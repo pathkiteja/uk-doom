@@ -105,28 +105,28 @@ export default function ServicesSection() {
       ref={sectionRef}
       className="relative z-50 bg-doma-bg py-[10vh] md:py-[14vh]"
     >
-      <div className="px-[3vw] grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8">
+      <div className="px-[5vw] md:px-[3vw] grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-8">
         {/* Left Content */}
         <div>
-          <div ref={headingRef} className="mb-12 will-change-transform">
-            <div className="label-upper mb-4">SERVICES</div>
+          <div ref={headingRef} className="mb-8 md:mb-12 will-change-transform">
+            <div className="label-upper mb-3 md:mb-4">SERVICES</div>
             <h2 className="section-heading text-doma-text">What we deliver</h2>
           </div>
 
-          <div ref={servicesRef} className="space-y-6">
+          <div ref={servicesRef} className="space-y-4 md:space-y-6">
             {services.map((service, index) => (
               <div
                 key={index}
                 className="service-item group cursor-pointer will-change-transform"
               >
-                <div className="flex items-baseline justify-between border-b border-doma-text/10 pb-4 transition-colors duration-300 group-hover:border-doma-gold">
-                  <div>
-                    <h3 className="text-lg md:text-xl font-medium text-doma-text group-hover:text-doma-gold transition-colors duration-300">
+                <div className="flex items-baseline justify-between gap-4 border-b border-doma-text/10 pb-3 md:pb-4 transition-colors duration-300 group-hover:border-doma-gold">
+                  <div className="min-w-0">
+                    <h3 className="text-base md:text-xl font-medium text-doma-text group-hover:text-doma-gold transition-colors duration-300">
                       {service.title}
                     </h3>
-                    <p className="text-sm text-doma-muted mt-1">{service.desc}</p>
+                    <p className="text-[13px] md:text-sm text-doma-muted mt-1">{service.desc}</p>
                   </div>
-                  <div className="text-doma-muted group-hover:text-doma-gold transition-colors duration-300">
+                  <div className="shrink-0 text-doma-muted group-hover:text-doma-gold transition-colors duration-300">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M7 17L17 7M17 7H7M17 7V17" />
                     </svg>
@@ -141,7 +141,7 @@ export default function ServicesSection() {
         <div className="relative">
           <div
             ref={imageRef}
-            className="w-full lg:w-[45vw] h-[60vh] md:h-[72vh] rounded-md overflow-hidden will-change-transform"
+            className="w-full lg:w-[45vw] h-[50vh] md:h-[72vh] rounded-md overflow-hidden will-change-transform"
           >
             <img
               src="/services_building.jpg"
@@ -151,7 +151,7 @@ export default function ServicesSection() {
           </div>
           <div
             ref={badgeRef}
-            className="absolute left-4 bottom-8 px-4 py-2 bg-doma-dark/80 backdrop-blur-sm text-white text-xs uppercase tracking-wider rounded-full will-change-transform"
+            className="absolute left-4 bottom-4 md:bottom-8 px-4 py-2 bg-doma-dark/80 backdrop-blur-sm text-white text-[10px] md:text-xs uppercase tracking-wider rounded-full will-change-transform"
           >
             Design + Build
           </div>

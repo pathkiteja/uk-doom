@@ -1,8 +1,23 @@
-import { useRef, useLayoutEffect } from 'react';
+import { useRef, useLayoutEffect, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(min-width: 768px)').matches
+      : true
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isDesktop;
+};
 
 const archiveItems = [
   { title: 'Stair detail', image: '/archive_01.jpg', from: { x: '-50vw', y: '-40vh' } },
@@ -17,10 +32,11 @@ export default function ArchiveSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const tilesRef = useRef<(HTMLDivElement | null)[]>([]);
+  const isDesktop = useIsDesktop();
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    if (!section || !isDesktop) return;
 
     const ctx = gsap.context(() => {
       const scrollTl = gsap.timeline({
@@ -83,7 +99,89 @@ export default function ArchiveSection() {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [isDesktop]);
+
+  // Mobile entrance animation (no pinning)
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section || isDesktop) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        headingRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: headingRef.current,
+            start: 'top 85%',
+            end: 'top 60%',
+            scrub: 0.5,
+          },
+        }
+      );
+
+      gsap.fromTo(
+        tilesRef.current.filter(Boolean),
+        { y: 40, opacity: 0, scale: 0.96 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: tilesRef.current[0],
+            start: 'top 85%',
+            end: 'top 35%',
+            scrub: 0.5,
+          },
+        }
+      );
+    }, section);
+
+    return () => ctx.revert();
+  }, [isDesktop]);
+
+  if (!isDesktop) {
+    return (
+      <section
+        ref={sectionRef}
+        className="relative z-40 bg-doma-bg py-[10vh]"
+      >
+        <h2
+          ref={headingRef}
+          className="section-heading text-doma-text text-center mb-10 will-change-transform"
+        >
+          THE ARCHIVE
+        </h2>
+
+        <div className="px-[5vw]">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {archiveItems.map((item, index) => (
+              <div
+                key={index}
+                ref={(el) => { tilesRef.current[index] = el; }}
+                className="relative rounded-md overflow-hidden shadow-card aspect-[4/5] will-change-transform group cursor-pointer"
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-active:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute left-3 bottom-3 right-3 text-white">
+                  <span className="tile-caption text-xs font-medium">{item.title}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

@@ -77,11 +77,11 @@ export default function JournalSection() {
       ref={sectionRef}
       className="relative z-60 bg-doma-bg py-[10vh] md:py-[14vh]"
     >
-      <div className="px-[3vw]">
+      <div className="px-[5vw] md:px-[3vw]">
         {/* Heading */}
         <h2
           ref={headingRef}
-          className="section-heading text-doma-text mb-12 md:mb-16 will-change-transform"
+          className="section-heading text-doma-text mb-10 md:mb-16 will-change-transform"
         >
           STUDIO NOTES
         </h2>
@@ -94,17 +94,17 @@ export default function JournalSection() {
               ref={(el) => { cardsRef.current[index] = el; }}
               className="group cursor-pointer will-change-transform"
             >
-              <div className="h-[22vh] md:h-[28vh] rounded-md overflow-hidden mb-4">
+              <div className="aspect-[4/3] md:aspect-auto md:h-[28vh] rounded-md overflow-hidden mb-4">
                 <img
                   src={article.image}
                   alt={article.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
-              <div className="text-xs text-doma-muted uppercase tracking-wider mb-2">
+              <div className="text-[10px] md:text-xs text-doma-muted uppercase tracking-wider mb-2">
                 {article.date}
               </div>
-              <h3 className="text-lg md:text-xl font-medium text-doma-text group-hover:text-doma-gold transition-colors duration-300">
+              <h3 className="text-base md:text-xl font-medium text-doma-text group-hover:text-doma-gold transition-colors duration-300">
                 {article.title}
               </h3>
             </div>
