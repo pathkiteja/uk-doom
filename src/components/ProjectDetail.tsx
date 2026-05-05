@@ -35,7 +35,7 @@ export default function ProjectDetail({
   onBackToCategory,
   onBackToSelected,
 }: Props) {
-  const backLabel = categoryLabel || 'Selected Projects';
+  const backLabel = categoryLabel || 'Projects';
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
   const [galleryIdx, setGalleryIdx] = useState(0);
@@ -199,10 +199,17 @@ export default function ProjectDetail({
             <Detail label="Year" value={project.year || '—'} />
             <Detail label="Scope" value={project.scope || '—'} />
           </div>
-          <div className="lg:col-span-8 lg:col-start-5">
-            <p className="text-white/80 text-[15px] md:text-[19px] leading-[1.7] font-light">
-              {project.longDescription}
-            </p>
+          <div className="lg:col-span-8 lg:col-start-5 space-y-4 md:space-y-5">
+            {project.longDescription
+              .split(/\n\s*\n/)
+              .map((para, i) => (
+                <p
+                  key={i}
+                  className="text-white/80 text-[15px] md:text-[19px] leading-[1.7] font-light"
+                >
+                  {para.trim()}
+                </p>
+              ))}
           </div>
         </div>
 

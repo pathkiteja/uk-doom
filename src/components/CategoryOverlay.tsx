@@ -140,7 +140,7 @@ export default function CategoryOverlay({
               </span>
             </span>
             <span className="text-[10px] md:text-xs uppercase tracking-[0.16em]">
-              <span className="hidden sm:inline">Back to Selected Projects</span>
+              <span className="hidden sm:inline">Back to Projects</span>
               <span className="sm:hidden">Back</span>
             </span>
           </button>
@@ -163,7 +163,7 @@ export default function CategoryOverlay({
               onClick={goToSelected}
               className="hidden sm:inline hover:text-white transition-colors duration-300"
             >
-              Selected Projects
+              Projects
             </button>
             <span className="hidden sm:inline mx-2 text-white/25">/</span>
             <span className="text-white/85">{label}</span>

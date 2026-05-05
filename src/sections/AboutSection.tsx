@@ -103,7 +103,7 @@ const areas: AboutArea[] = [
       'Eighteen years of careful, considered construction across residential, commercial, and community work.',
     body:
       'With over 18 years of experience in the construction industry, Doma Build Contractors Ltd has become a trusted name in the field of construction. Our team of experts has the knowledge, skills, and expertise to handle any project, big or small. We have completed numerous projects ranging from residential homes to commercial buildings, and our clients can attest to our commitment to quality and excellence.',
-    image: '/about/expertise.png',
+    image: '/about/expertise/compressed_image.jpg',
     highlights: [
       { label: 'Experience', value: '18+ yrs' },
       { label: 'Delivered', value: '120+ projects' },

@@ -54,7 +54,22 @@ export default function ProjectsSection() {
   const goBackToSelected = () => {
     setOpenProject(null);
     setOpenCategory(null);
-    scrollToSection('projects', { delay: 320 });
+
+    // After the modals unmount, body/html overflow is restored. Force a
+    // ScrollTrigger recalculation so any cached trigger positions (which
+    // were measured while the page was scroll-locked) line up with the
+    // live layout — otherwise scroll-driven section animations can feel
+    // stuck or jumpy on the way back to the homepage.
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        // Hard-reset any leftover overflow lock just in case overlapping
+        // overlays didn't restore cleanly.
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        ScrollTrigger.refresh();
+        scrollToSection('projects', { delay: 0 });
+      });
+    });
   };
 
   useEffect(() => {

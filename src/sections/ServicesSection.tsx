@@ -127,12 +127,13 @@ export default function ServicesSection() {
         {
           y: 0,
           opacity: 1,
+          duration: 0.9,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: headingRef.current,
-            start: 'top 85%',
-            end: 'top 55%',
-            scrub: 0.5,
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+            once: true,
           },
         }
       );
@@ -144,15 +145,31 @@ export default function ServicesSection() {
           y: 0,
           opacity: 1,
           stagger: 0.07,
+          duration: 0.8,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: servicesRef.current,
-            start: 'top 80%',
-            end: 'top 40%',
-            scrub: 0.5,
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+            once: true,
           },
         }
       );
+
+      // Safety net: if ScrollTrigger doesn't fire (e.g. element already past
+      // the trigger point on load), force-reveal after a short delay.
+      const safetyTimer = window.setTimeout(() => {
+        gsap.set(
+          [headingRef.current, ...(servicesRef.current?.querySelectorAll('.service-item') || [])],
+          { opacity: 1, y: 0, clearProps: 'transform' }
+        );
+      }, 1200);
+
+      ScrollTrigger.refresh();
+
+      return () => {
+        window.clearTimeout(safetyTimer);
+      };
     }, section);
 
     return () => ctx.revert();
