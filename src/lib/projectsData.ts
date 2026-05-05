@@ -40,7 +40,7 @@ export const projects: ProjectDetailData[] = [
     title: '57 Castle Street, Reading',
     image: '/projects/residential/57-castle-street-reading/01.webp',
     location: 'Reading, Berkshire',
-    year: '',
+    year: '2017',
     scope: 'Residential',
     description:
       'Full conversion of an existing office building into modern residential apartments, delivered within a tight five-month programme.',
@@ -56,7 +56,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Balham',
     image: '/projects/residential/balham/01.png',
     location: '15 Balham High Road, London',
-    year: '',
+    year: 'Ongoing',
     scope: 'Mixed-use Residential',
     description:
       'Mixed-use redevelopment with residential units and a high-end commercial space — full demolition, basement excavation, mansard and rear extension.',
@@ -69,7 +69,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Finchley House',
     image: '/projects/residential/finchley-house/01.png',
     location: '35 Abington Road, Finchley, London',
-    year: '',
+    year: '2025',
     scope: 'Residential — Design & Build',
     description:
       'A bespoke five-bedroom luxury residence (~450m²), delivered turnkey with fully coordinated MEP systems and premium finishes.',
@@ -87,7 +87,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Finsbury Park',
     image: '/projects/residential/finsbury-park/01.jpg',
     location: '64–66 Finsbury Grove, London',
-    year: '',
+    year: '2025',
     scope: 'Residential — New Build',
     description:
       'A new-build residential development delivering 10 contemporary apartments across approximately 1,100m² with retained façade and full turnkey fit-out.',
@@ -100,7 +100,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Hitchen',
     image: '/projects/residential/hitchen/01.jpg',
     location: 'Backlesbury, Hitchin Town Centre',
-    year: '',
+    year: '2014',
     scope: 'Heritage Mixed-Use',
     description:
       'Heritage-led redevelopment completing a partially abandoned site — 10 residential units, commercial spaces, and a reconstructed 450-year-old roof.',
@@ -121,7 +121,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Richmond House',
     image: '/projects/residential/richmond-house/01.jpeg',
     location: 'Courtlands Avenue, Ealing',
-    year: '',
+    year: '2021',
     scope: 'Residential — Façade Retention',
     description:
       'Façade retention with complete reconstruction of a modern five-bedroom home, including additional floors, crown roof, landscaping and garage.',
@@ -154,7 +154,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Wembley',
     image: '/projects/residential/wembley/01.png',
     location: '12 Harrowdene Road, Wembley, London',
-    year: '',
+    year: '2024',
     scope: 'Residential — Penthouse Extension',
     description:
       'High-end rooftop penthouse extension on an occupied residential building — a luxury two-bedroom unit with bespoke kitchens, underfloor heating and designer wet rooms.',
@@ -181,7 +181,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Isleworth Deen Centre',
     image: '/projects/community/idc/01.jpg',
     location: 'United Kingdom',
-    year: '',
+    year: '2025',
     scope: 'Community — Grade II Listed',
     description:
       'Full refurbishment and structural upgrade of a Grade II listed building, combining modern building performance with heritage preservation.',
@@ -221,7 +221,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Leyton',
     image: '/projects/community/leyton/01.jpg',
     location: 'Nurul Islam Trust, Leyton, London',
-    year: '',
+    year: '2026',
     scope: 'Community — Refurbishment & Fit-out',
     description:
       'Large-scale refurbishment and high-end fit-out of a multi-storey community building, with bespoke ablution facilities and premium internal finishes.',
@@ -238,8 +238,8 @@ export const projects: ProjectDetailData[] = [
   {
     title: 'Luton',
     image: '/projects/community/luton/01.jpg',
-    location: 'Saints Community Hub, Luton, Bedfordshire',
-    year: '',
+    location: 'Saints Community Hub, St Bishopscote Road, Luton, Bedfordshire',
+    year: 'Ongoing',
     scope: 'Community — New Build',
     description:
       'Large-scale community development with demolition, groundworks and new structural steel building — drainage, reinforced foundations and façade systems.',
@@ -273,7 +273,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Southall Washrooms',
     image: '/projects/community/southall-washrooms/01.webp',
     location: 'Central Jamia Masjid Southall, London',
-    year: '',
+    year: '2022',
     scope: 'Community — Washroom Refurbishment',
     description:
       'High-spec refurbishment of washroom and ablution facilities within a live religious environment — new drainage, plumbing, underfloor heating and durable fixtures.',
@@ -293,7 +293,7 @@ export const projects: ProjectDetailData[] = [
     title: 'Qaboli',
     image: '/projects/commercial/qaboli/01.jpg',
     location: '13 Station Road, United Kingdom',
-    year: '',
+    year: '2025',
     scope: 'Commercial — Restaurant',
     description:
       'Complete restaurant redevelopment — demolition, rear extension and full commercial kitchen, with a bespoke high-end interior and custom lighting.',
