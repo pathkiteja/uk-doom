@@ -186,7 +186,10 @@ export default function ProjectsSection() {
           {CATEGORY_ENTRIES.map((c) => (
             <button
               key={c.id}
-              onClick={() => setOpenCategory(c.id)}
+              onClick={() => {
+                setInitialStatus('present');
+                setOpenCategory(c.id);
+              }}
               className="mobile-category-card relative w-full aspect-[4/5] sm:aspect-[3/2] rounded-md overflow-hidden shadow-card group text-left will-change-transform"
             >
               <img
@@ -213,6 +216,7 @@ export default function ProjectsSection() {
         {openCategory && (
           <CategoryOverlay
             category={openCategory}
+            initialStatus={initialStatus}
             projects={projects}
             onClose={() => setOpenCategory(null)}
             onBackToSelected={goBackToSelected}

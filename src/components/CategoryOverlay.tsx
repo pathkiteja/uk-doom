@@ -257,7 +257,7 @@ export default function CategoryOverlay({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[300] overflow-hidden"
+      className="fixed inset-0 z-[420] overflow-hidden"
       style={{
         backgroundColor: '#0E0E0E',
         opacity: visible ? 1 : 0,
