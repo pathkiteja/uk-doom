@@ -178,9 +178,9 @@ export const projects: ProjectDetailData[] = [
 
   // ─── COMMUNITY ────────────────────────────────────────────────────────
   {
-    title: 'IDC',
+    title: 'Isleworth Deen Centre',
     image: '/projects/community/idc/01.jpg',
-    location: 'Isleworth Deen Centre, United Kingdom',
+    location: 'United Kingdom',
     year: '',
     scope: 'Community — Grade II Listed',
     description:
