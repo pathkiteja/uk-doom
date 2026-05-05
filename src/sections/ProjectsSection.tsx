@@ -42,8 +42,6 @@ export default function ProjectsSection() {
   const [hovered, setHovered] = useState<number | null>(null);
   const [openCategory, setOpenCategory] =
     useState<ProjectCategory | null>(null);
-  const [initialStatus, setInitialStatus] =
-    useState<'present' | 'past'>('present');
   const [openProject, setOpenProject] =
     useState<ProjectDetailData | null>(null);
   const isDesktop = useIsDesktop();
@@ -65,29 +63,16 @@ export default function ProjectsSection() {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail as
         | ProjectCategory
-        | { category: ProjectCategory; status?: 'present' | 'past' }
+        | { category: ProjectCategory }
         | undefined;
       if (!detail) return;
 
-      if (typeof detail === 'string') {
-        if (
-          detail === 'commercial' ||
-          detail === 'residential' ||
-          detail === 'community'
-        ) {
-          setInitialStatus('present');
-          setOpenCategory(detail);
-        }
-        return;
-      }
-
-      const { category, status } = detail;
+      const category = typeof detail === 'string' ? detail : detail.category;
       if (
         category === 'commercial' ||
         category === 'residential' ||
         category === 'community'
       ) {
-        setInitialStatus(status === 'past' ? 'past' : 'present');
         setOpenCategory(category);
       }
     };
@@ -186,10 +171,7 @@ export default function ProjectsSection() {
           {CATEGORY_ENTRIES.map((c) => (
             <button
               key={c.id}
-              onClick={() => {
-                setInitialStatus('present');
-                setOpenCategory(c.id);
-              }}
+              onClick={() => setOpenCategory(c.id)}
               className="mobile-category-card relative w-full aspect-[4/5] sm:aspect-[3/2] rounded-md overflow-hidden shadow-card group text-left will-change-transform"
             >
               <img
@@ -216,7 +198,6 @@ export default function ProjectsSection() {
         {openCategory && (
           <CategoryOverlay
             category={openCategory}
-            initialStatus={initialStatus}
             projects={projects}
             onClose={() => setOpenCategory(null)}
             onBackToSelected={goBackToSelected}
@@ -298,7 +279,6 @@ export default function ProjectsSection() {
       {openCategory && (
         <CategoryOverlay
           category={openCategory}
-          initialStatus={initialStatus}
           projects={projects}
           onClose={() => setOpenCategory(null)}
           onBackToSelected={goBackToSelected}

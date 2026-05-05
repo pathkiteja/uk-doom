@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import Footer from './Footer';
 
 export type ProjectCategory = 'commercial' | 'residential' | 'community';
-export type ProjectStatus = 'present' | 'past';
 
 export type ProjectDetailData = {
   title: string;
@@ -15,7 +14,6 @@ export type ProjectDetailData = {
   longDescription: string;
   gallery: string[];
   category: ProjectCategory;
-  status: ProjectStatus;
 };
 
 type Props = {
@@ -138,21 +136,6 @@ export default function ProjectDetail({
     }, 720);
   };
 
-  const goToStatus = (status: 'present' | 'past') => {
-    if (closing) return;
-    setClosing(true);
-    window.setTimeout(() => {
-      window.dispatchEvent(
-        new CustomEvent('projects:openCategory', {
-          detail: { category: project.category, status },
-        })
-      );
-      onClose();
-    }, 720);
-  };
-
-  const statusLabel = project.status === 'present' ? 'Present' : 'Past';
-
   const visible = entered && !closing;
 
   return createPortal(
@@ -199,10 +182,6 @@ export default function ProjectDetail({
               </>
             )}
             <BreadcrumbSep />
-            <BreadcrumbLink onClick={() => goToStatus(project.status)}>
-              {statusLabel}
-            </BreadcrumbLink>
-            <BreadcrumbSep />
             <span className="text-white/90 whitespace-nowrap">
               {project.title}
             </span>
@@ -222,7 +201,9 @@ export default function ProjectDetail({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30" />
           <div className="absolute left-[5vw] right-[5vw] md:left-[3vw] md:right-[3vw] bottom-[5vh] md:bottom-[6vh] text-white">
             <div className="text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-white/60 mb-2 md:mb-3">
-              {project.location} · {project.year}
+              {project.year
+                ? `${project.location} · ${project.year}`
+                : project.location}
             </div>
             <h1 className="font-serif leading-[1.02] text-[clamp(32px,7vw,108px)] max-w-full md:max-w-[78vw]">
               {project.title}
@@ -235,9 +216,9 @@ export default function ProjectDetail({
 
         <div className="px-[5vw] md:px-[3vw] py-[8vh] md:py-[10vh] grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
           <div className="lg:col-span-3 grid grid-cols-3 lg:grid-cols-1 gap-5 md:gap-6 lg:gap-0 lg:space-y-8">
-            <Detail label="Location" value={project.location} />
-            <Detail label="Year" value={project.year} />
-            <Detail label="Scope" value={project.scope} />
+            <Detail label="Location" value={project.location || '—'} />
+            <Detail label="Year" value={project.year || '—'} />
+            <Detail label="Scope" value={project.scope || '—'} />
           </div>
           <div className="lg:col-span-8 lg:col-start-5">
             <p className="text-white/80 text-[15px] md:text-[19px] leading-[1.7] font-light">

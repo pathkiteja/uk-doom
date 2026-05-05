@@ -410,8 +410,9 @@ export default function ContactSection() {
                                 >
                                   <span className="block">{p.title}</span>
                                   <span className="block text-[11px] text-white/45 mt-0.5">
-                                    {p.location} · {p.year} ·{' '}
-                                    {p.status === 'present' ? 'Present' : 'Past'}
+                                    {[p.location, p.year]
+                                      .filter(Boolean)
+                                      .join(' · ')}
                                   </span>
                                 </button>
                               </li>

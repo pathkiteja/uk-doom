@@ -11,9 +11,6 @@ const categories: { label: string; category: CategoryKey }[] = [
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState<CategoryKey | null>(
-    null
-  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,10 +35,6 @@ export default function Navigation() {
     };
   }, [menuOpen]);
 
-  useEffect(() => {
-    if (!menuOpen) setMobileExpanded(null);
-  }, [menuOpen]);
-
   const goTo = (href: string) => {
     setMenuOpen(false);
     window.setTimeout(() => {
@@ -53,10 +46,7 @@ export default function Navigation() {
     }, 320);
   };
 
-  const openCategory = (
-    category: CategoryKey,
-    status: 'present' | 'past' = 'present'
-  ) => {
+  const openCategory = (category: CategoryKey) => {
     setMenuOpen(false);
     window.setTimeout(() => {
       const el = document.getElementById('projects');
@@ -64,7 +54,7 @@ export default function Navigation() {
       window.setTimeout(() => {
         window.dispatchEvent(
           new CustomEvent('projects:openCategory', {
-            detail: { category, status },
+            detail: { category },
           })
         );
       }, 380);
@@ -152,76 +142,46 @@ export default function Navigation() {
                 Selected Projects
               </div>
 
-              {/* Mobile: collapsible per-category list with arrow */}
+              {/* Mobile: single tap-to-open category list */}
               <ul className="lg:hidden space-y-2 mb-8 md:mb-10">
-                {categories.map((c) => {
-                  const open = mobileExpanded === c.category;
-                  return (
-                    <li
-                      key={c.label}
-                      className="border-b border-white/10 pb-2"
+                {categories.map((c) => (
+                  <li key={c.label} className="border-b border-white/10 pb-2">
+                    <button
+                      type="button"
+                      onClick={() => openCategory(c.category)}
+                      className="w-full flex items-center justify-between gap-3 py-2 text-left group"
                     >
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setMobileExpanded(open ? null : c.category)
-                        }
-                        className="w-full flex items-center justify-between gap-3 py-2 text-left"
-                        aria-expanded={open}
+                      <span className="font-serif text-white/90 text-[clamp(22px,5.5vw,32px)] leading-[1.05] group-hover:text-doma-gold transition-colors">
+                        {c.label}
+                      </span>
+                      <span
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/30 text-white/70 group-hover:border-doma-gold group-hover:text-doma-gold transition-colors duration-300"
+                        aria-hidden
                       >
-                        <span className="font-serif text-white/90 text-[clamp(22px,5.5vw,32px)] leading-[1.05]">
-                          {c.label}
-                        </span>
-                        <span
-                          className={`inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/30 text-white/70 transition-transform duration-500 ${
-                            open ? 'rotate-90 border-doma-gold text-doma-gold' : ''
-                          }`}
-                          aria-hidden
-                        >
-                          →
-                        </span>
-                      </button>
-                      <div
-                        className={`grid transition-[grid-template-rows] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
-                          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-                        }`}
-                      >
-                        <div className="overflow-hidden">
-                          <div className="pt-2 pb-3 flex items-center gap-5 text-[12px] uppercase tracking-[0.22em]">
-                            <button
-                              onClick={() =>
-                                openCategory(c.category, 'present')
-                              }
-                              className="text-white/80 hover:text-doma-gold transition-colors"
-                            >
-                              Present
-                            </button>
-                            <span className="text-white/20">/</span>
-                            <button
-                              onClick={() => openCategory(c.category, 'past')}
-                              className="text-white/80 hover:text-doma-gold transition-colors"
-                            >
-                              Past
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
+                        →
+                      </span>
+                    </button>
+                  </li>
+                ))}
               </ul>
 
-              {/* Desktop: two side-by-side columns — Present + Past */}
-              <div className="hidden lg:grid grid-cols-2 gap-x-[2vw] mb-10">
-                <CategoryColumn
-                  status="present"
-                  onPick={(cat) => openCategory(cat, 'present')}
-                />
-                <CategoryColumn
-                  status="past"
-                  onPick={(cat) => openCategory(cat, 'past')}
-                />
-              </div>
+              {/* Desktop: single category list */}
+              <ul className="hidden lg:block space-y-3 mb-10">
+                {categories.map((c) => (
+                  <li key={c.label}>
+                    <button
+                      type="button"
+                      onClick={() => openCategory(c.category)}
+                      className="group inline-flex items-baseline gap-3 text-left text-white/85 hover:text-doma-gold transition-colors duration-300"
+                    >
+                      <span className="inline-block w-6 h-px bg-white/30 group-hover:bg-doma-gold group-hover:w-10 transition-all duration-300" />
+                      <span className="font-serif text-[clamp(20px,2.2vw,30px)] leading-[1.05]">
+                        {c.label}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
 
               <div className="pt-6 md:pt-8 border-t border-white/10">
                 <div className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-white/45 mb-3">
@@ -251,37 +211,6 @@ export default function Navigation() {
         </div>
       </div>
     </>
-  );
-}
-
-type CategoryColumnProps = {
-  status: 'present' | 'past';
-  onPick: (category: CategoryKey) => void;
-};
-
-function CategoryColumn({ status, onPick }: CategoryColumnProps) {
-  return (
-    <div>
-      <div className="text-[11px] uppercase tracking-[0.22em] text-white/55 mb-4">
-        {status === 'present' ? 'Present' : 'Past'}
-      </div>
-      <ul className="space-y-2">
-        {categories.map((c) => (
-          <li key={c.label}>
-            <button
-              type="button"
-              onClick={() => onPick(c.category)}
-              className="group inline-flex items-baseline gap-3 text-left text-white/85 hover:text-doma-gold transition-colors duration-300"
-            >
-              <span className="inline-block w-6 h-px bg-white/30 group-hover:bg-doma-gold group-hover:w-10 transition-all duration-300" />
-              <span className="font-serif text-[clamp(20px,2.2vw,30px)] leading-[1.05]">
-                {c.label}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type {
   ProjectDetailData,
@@ -24,7 +24,6 @@ const CATEGORY_DESCRIPTION: Record<ProjectCategory, string> = {
 type Props = {
   category: ProjectCategory;
   projects: ProjectDetailData[];
-  initialStatus?: 'present' | 'past';
   onClose: () => void;
   onBackToSelected?: () => void;
   onSelectProject: (project: ProjectDetailData) => void;
@@ -52,33 +51,20 @@ const useIsDesktop = () => {
 export default function CategoryOverlay({
   category,
   projects,
-  initialStatus = 'present',
   onClose,
   onBackToSelected,
   onSelectProject,
 }: Props) {
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
-  const [presentExpanded, setPresentExpanded] = useState(false);
-  const [pastExpanded, setPastExpanded] = useState(false);
-  const [hoveredPresent, setHoveredPresent] = useState<number | null>(null);
-  const [hoveredPast, setHoveredPast] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [hovered, setHovered] = useState<number | null>(null);
   const isDesktop = useIsDesktop();
-  const presentRef = useRef<HTMLDivElement>(null);
-  const pastRef = useRef<HTMLDivElement>(null);
 
-  const present = projects.filter(
-    (p) => p.category === category && p.status === 'present'
-  );
-  const past = projects.filter(
-    (p) => p.category === category && p.status === 'past'
-  );
-  const presentTriple = present.slice(0, 3);
-  const pastTriple = past.slice(0, 3);
-  const hasPast = past.length > 0;
-  const hasPresent = present.length > 0;
-  const hasMorePresent = present.length > 3;
-  const hasMorePast = past.length > 3;
+  const items = projects.filter((p) => p.category === category);
+  const triple = items.slice(0, 3);
+  const hasItems = items.length > 0;
+  const hasMore = items.length > 3;
 
   useEffect(() => {
     const t = window.requestAnimationFrame(() => setEntered(true));
@@ -102,14 +88,6 @@ export default function CategoryOverlay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (initialStatus !== 'past' || !hasPast) return;
-    const t = window.setTimeout(() => {
-      pastRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 380);
-    return () => window.clearTimeout(t);
-  }, [initialStatus, hasPast]);
-
   const triggerClose = () => {
     if (closing) return;
     setClosing(true);
@@ -124,10 +102,7 @@ export default function CategoryOverlay({
     triggerClose();
   };
 
-  const innerStyle = (
-    idx: number,
-    hovered: number | null
-  ): React.CSSProperties => {
+  const innerStyle = (idx: number): React.CSSProperties => {
     const base: React.CSSProperties = {
       transition: HOVER_TRANSITION,
       willChange: 'transform, opacity, filter',
@@ -171,7 +146,7 @@ export default function CategoryOverlay({
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
             <div className="absolute left-5 right-5 bottom-5 text-white">
               <div className="text-[10px] uppercase tracking-[0.18em] text-white/70 mb-1.5">
-                {p.location} · {p.year}
+                {p.year ? `${p.location} · ${p.year}` : p.location}
               </div>
               <h3 className="font-serif text-lg md:text-xl leading-tight">
                 {p.title}
@@ -183,11 +158,7 @@ export default function CategoryOverlay({
     );
   };
 
-  const renderTriple = (
-    items: ProjectDetailData[],
-    hovered: number | null,
-    setHovered: (v: number | null) => void
-  ) => {
+  const renderTriple = (items: ProjectDetailData[]) => {
     if (!isDesktop) {
       return (
         <div className="px-[5vw] flex flex-col gap-5">
@@ -205,7 +176,7 @@ export default function CategoryOverlay({
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
               <div className="absolute left-5 right-5 bottom-5 text-white">
                 <div className="text-[10px] uppercase tracking-[0.18em] text-white/70 mb-1.5">
-                  {p.location} · {p.year}
+                  {p.year ? `${p.location} · ${p.year}` : p.location}
                 </div>
                 <h3 className="font-serif text-xl sm:text-2xl leading-tight">
                   {p.title}
@@ -228,7 +199,7 @@ export default function CategoryOverlay({
             onClick={() => onSelectProject(items[0])}
             onEnter={() => setHovered(0)}
             onLeave={() => setHovered(hovered === 0 ? null : hovered)}
-            innerStyle={innerStyle(0, hovered)}
+            innerStyle={innerStyle(0)}
           />
         )}
         {items[1] && (
@@ -238,7 +209,7 @@ export default function CategoryOverlay({
             onClick={() => onSelectProject(items[1])}
             onEnter={() => setHovered(1)}
             onLeave={() => setHovered(hovered === 1 ? null : hovered)}
-            innerStyle={innerStyle(1, hovered)}
+            innerStyle={innerStyle(1)}
           />
         )}
         {items[2] && (
@@ -248,7 +219,7 @@ export default function CategoryOverlay({
             onClick={() => onSelectProject(items[2])}
             onEnter={() => setHovered(2)}
             onLeave={() => setHovered(hovered === 2 ? null : hovered)}
-            innerStyle={innerStyle(2, hovered)}
+            innerStyle={innerStyle(2)}
           />
         )}
       </div>
@@ -324,99 +295,53 @@ export default function CategoryOverlay({
           </p>
         </div>
 
-        <div ref={presentRef} className="px-[5vw] md:px-[3vw] pt-[3vh] md:pt-[5vh] pb-[2vh] md:pb-[3vh]">
+        <div className="px-[5vw] md:px-[3vw] pt-[3vh] md:pt-[5vh] pb-[2vh] md:pb-[3vh]">
           <div className="flex items-baseline justify-between border-t border-white/10 pt-[3vh] md:pt-[4vh]">
             <div className="flex items-baseline gap-3 md:gap-4">
               <span className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-white/45 tabular-nums">
                 01
               </span>
               <h2 className="font-serif text-white text-[clamp(22px,2.6vw,38px)]">
-                Present
+                Projects
               </h2>
             </div>
             <span className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-white/45">
-              {present.length} project{present.length !== 1 ? 's' : ''}
+              {items.length} project{items.length !== 1 ? 's' : ''}
             </span>
           </div>
         </div>
 
-        {hasPresent ? (
-          renderTriple(presentTriple, hoveredPresent, setHoveredPresent)
+        {hasItems ? (
+          renderTriple(triple)
         ) : (
           <div className="px-[5vw] md:px-[3vw] py-[10vh] text-center text-white/45 text-[13px] uppercase tracking-[0.22em]">
-            No present projects yet.
+            No projects yet.
           </div>
         )}
 
-        {presentExpanded && hasMorePresent && (
+        {expanded && hasMore && (
           <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh]">
-            {renderGrid(present.slice(3))}
+            {renderGrid(items.slice(3))}
           </div>
         )}
 
-        {hasMorePresent && (
-          <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[2vh] md:pb-[3vh] flex justify-center">
+        {hasMore && (
+          <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[10vh] md:pb-[12vh] flex justify-center">
             <button
-              onClick={() => setPresentExpanded((v) => !v)}
+              onClick={() => setExpanded((v) => !v)}
               className="group inline-flex items-center gap-3 px-6 md:px-7 py-3 md:py-3.5 border border-white/40 rounded-full text-white text-xs md:text-sm uppercase tracking-[0.18em] font-semibold hover:bg-white hover:text-doma-text transition-colors duration-500"
             >
               <span
-                className={`inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[14px] leading-none transition-transform duration-300 ${presentExpanded ? '-rotate-45' : 'group-hover:rotate-90'}`}
+                className={`inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[14px] leading-none transition-transform duration-300 ${expanded ? '-rotate-45' : 'group-hover:rotate-90'}`}
               >
-                {presentExpanded ? '−' : '+'}
+                {expanded ? '−' : '+'}
               </span>
-              <span>{presentExpanded ? 'Less Projects' : 'More Projects'}</span>
+              <span>{expanded ? 'Less Projects' : 'More Projects'}</span>
             </button>
           </div>
         )}
 
-        {hasPast && (
-          <>
-            <div ref={pastRef} className="px-[5vw] md:px-[3vw] pt-[8vh] md:pt-[10vh] pb-[2vh] md:pb-[3vh]">
-              <div className="flex items-baseline justify-between border-t border-white/10 pt-[3vh] md:pt-[4vh]">
-                <div className="flex items-baseline gap-3 md:gap-4">
-                  <span className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-white/45 tabular-nums">
-                    02
-                  </span>
-                  <h2 className="font-serif text-white text-[clamp(22px,2.6vw,38px)]">
-                    Past
-                  </h2>
-                </div>
-                <span className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-white/45">
-                  {past.length} project{past.length !== 1 ? 's' : ''}
-                </span>
-              </div>
-            </div>
-
-            {renderTriple(pastTriple, hoveredPast, setHoveredPast)}
-
-            {pastExpanded && hasMorePast && (
-              <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh]">
-                {renderGrid(past.slice(3))}
-              </div>
-            )}
-
-            {hasMorePast && (
-              <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[10vh] md:pb-[12vh] flex justify-center">
-                <button
-                  onClick={() => setPastExpanded((v) => !v)}
-                  className="group inline-flex items-center gap-3 px-6 md:px-7 py-3 md:py-3.5 border border-white/40 rounded-full text-white text-xs md:text-sm uppercase tracking-[0.18em] font-semibold hover:bg-white hover:text-doma-text transition-colors duration-500"
-                >
-                  <span
-                    className={`inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[14px] leading-none transition-transform duration-300 ${pastExpanded ? '-rotate-45' : 'group-hover:rotate-90'}`}
-                  >
-                    {pastExpanded ? '−' : '+'}
-                  </span>
-                  <span>{pastExpanded ? 'Less Projects' : 'More Projects'}</span>
-                </button>
-              </div>
-            )}
-
-            {!hasMorePast && (
-              <div className="pb-[10vh] md:pb-[12vh]" />
-            )}
-          </>
-        )}
+        {!hasMore && hasItems && <div className="pb-[10vh] md:pb-[12vh]" />}
 
         <Footer variant="dark" />
       </div>
@@ -467,7 +392,9 @@ function Card({
           <div
             className={`uppercase tracking-[0.22em] text-white/70 mb-1.5 ${large ? 'text-[11px]' : 'text-[10px]'}`}
           >
-            {project.location} · {project.year}
+            {project.year
+              ? `${project.location} · ${project.year}`
+              : project.location}
           </div>
           <h3
             className={`font-serif transition-transform [transition-duration:700ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1 ${large ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}`}
