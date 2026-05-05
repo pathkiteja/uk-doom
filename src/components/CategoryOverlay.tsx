@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type {
   ProjectDetailData,
@@ -24,6 +24,7 @@ const CATEGORY_DESCRIPTION: Record<ProjectCategory, string> = {
 type Props = {
   category: ProjectCategory;
   projects: ProjectDetailData[];
+  initialStatus?: 'present' | 'past';
   onClose: () => void;
   onBackToSelected?: () => void;
   onSelectProject: (project: ProjectDetailData) => void;
@@ -51,24 +52,33 @@ const useIsDesktop = () => {
 export default function CategoryOverlay({
   category,
   projects,
+  initialStatus = 'present',
   onClose,
   onBackToSelected,
   onSelectProject,
 }: Props) {
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [presentExpanded, setPresentExpanded] = useState(false);
+  const [pastExpanded, setPastExpanded] = useState(false);
   const [hoveredPresent, setHoveredPresent] = useState<number | null>(null);
   const [hoveredPast, setHoveredPast] = useState<number | null>(null);
   const isDesktop = useIsDesktop();
+  const presentRef = useRef<HTMLDivElement>(null);
+  const pastRef = useRef<HTMLDivElement>(null);
 
-  const present = projects
-    .filter((p) => p.category === category && p.status === 'present')
-    .slice(0, 3);
-  const past = projects
-    .filter((p) => p.category === category && p.status === 'past')
-    .slice(0, 3);
+  const present = projects.filter(
+    (p) => p.category === category && p.status === 'present'
+  );
+  const past = projects.filter(
+    (p) => p.category === category && p.status === 'past'
+  );
+  const presentTriple = present.slice(0, 3);
+  const pastTriple = past.slice(0, 3);
   const hasPast = past.length > 0;
+  const hasPresent = present.length > 0;
+  const hasMorePresent = present.length > 3;
+  const hasMorePast = past.length > 3;
 
   useEffect(() => {
     const t = window.requestAnimationFrame(() => setEntered(true));
@@ -91,6 +101,14 @@ export default function CategoryOverlay({
     return () => window.removeEventListener('keydown', handler);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (initialStatus !== 'past' || !hasPast) return;
+    const t = window.setTimeout(() => {
+      pastRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 380);
+    return () => window.clearTimeout(t);
+  }, [initialStatus, hasPast]);
 
   const triggerClose = () => {
     if (closing) return;
@@ -134,6 +152,36 @@ export default function CategoryOverlay({
 
   const visible = entered && !closing;
   const label = CATEGORY_LABEL[category];
+
+  const renderGrid = (items: ProjectDetailData[]) => {
+    if (items.length === 0) return null;
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+        {items.map((p) => (
+          <button
+            key={p.title}
+            onClick={() => onSelectProject(p)}
+            className="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-card group text-left"
+          >
+            <img
+              src={p.image}
+              alt={p.title}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+            <div className="absolute left-5 right-5 bottom-5 text-white">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-white/70 mb-1.5">
+                {p.location} · {p.year}
+              </div>
+              <h3 className="font-serif text-lg md:text-xl leading-tight">
+                {p.title}
+              </h3>
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  };
 
   const renderTriple = (
     items: ProjectDetailData[],
@@ -276,7 +324,7 @@ export default function CategoryOverlay({
           </p>
         </div>
 
-        <div className="px-[5vw] md:px-[3vw] pt-[3vh] md:pt-[5vh] pb-[2vh] md:pb-[3vh]">
+        <div ref={presentRef} className="px-[5vw] md:px-[3vw] pt-[3vh] md:pt-[5vh] pb-[2vh] md:pb-[3vh]">
           <div className="flex items-baseline justify-between border-t border-white/10 pt-[3vh] md:pt-[4vh]">
             <div className="flex items-baseline gap-3 md:gap-4">
               <span className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-white/45 tabular-nums">
@@ -292,31 +340,39 @@ export default function CategoryOverlay({
           </div>
         </div>
 
-        {present.length > 0 ? (
-          renderTriple(present, hoveredPresent, setHoveredPresent)
+        {hasPresent ? (
+          renderTriple(presentTriple, hoveredPresent, setHoveredPresent)
         ) : (
           <div className="px-[5vw] md:px-[3vw] py-[10vh] text-center text-white/45 text-[13px] uppercase tracking-[0.22em]">
             No present projects yet.
           </div>
         )}
 
-        {hasPast && !expanded && (
-          <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[10vh] md:pb-[12vh] flex justify-center">
+        {presentExpanded && hasMorePresent && (
+          <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh]">
+            {renderGrid(present.slice(3))}
+          </div>
+        )}
+
+        {hasMorePresent && (
+          <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[2vh] md:pb-[3vh] flex justify-center">
             <button
-              onClick={() => setExpanded(true)}
+              onClick={() => setPresentExpanded((v) => !v)}
               className="group inline-flex items-center gap-3 px-6 md:px-7 py-3 md:py-3.5 border border-white/40 rounded-full text-white text-xs md:text-sm uppercase tracking-[0.18em] font-semibold hover:bg-white hover:text-doma-text transition-colors duration-500"
             >
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[14px] leading-none transition-transform duration-300 group-hover:rotate-90">
-                +
+              <span
+                className={`inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[14px] leading-none transition-transform duration-300 ${presentExpanded ? '-rotate-45' : 'group-hover:rotate-90'}`}
+              >
+                {presentExpanded ? '−' : '+'}
               </span>
-              <span>More Projects</span>
+              <span>{presentExpanded ? 'Less Projects' : 'More Projects'}</span>
             </button>
           </div>
         )}
 
-        {expanded && hasPast && (
+        {hasPast && (
           <>
-            <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[2vh] md:pb-[3vh]">
+            <div ref={pastRef} className="px-[5vw] md:px-[3vw] pt-[8vh] md:pt-[10vh] pb-[2vh] md:pb-[3vh]">
               <div className="flex items-baseline justify-between border-t border-white/10 pt-[3vh] md:pt-[4vh]">
                 <div className="flex items-baseline gap-3 md:gap-4">
                   <span className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-white/45 tabular-nums">
@@ -332,19 +388,33 @@ export default function CategoryOverlay({
               </div>
             </div>
 
-            {renderTriple(past, hoveredPast, setHoveredPast)}
+            {renderTriple(pastTriple, hoveredPast, setHoveredPast)}
 
-            <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[10vh] md:pb-[12vh] flex justify-center">
-              <button
-                onClick={() => setExpanded(false)}
-                className="group inline-flex items-center gap-3 px-6 md:px-7 py-3 md:py-3.5 border border-white/40 rounded-full text-white text-xs md:text-sm uppercase tracking-[0.18em] font-semibold hover:bg-white hover:text-doma-text transition-colors duration-500"
-              >
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[14px] leading-none transition-transform duration-300 group-hover:-rotate-90">
-                  −
-                </span>
-                <span>Less Projects</span>
-              </button>
-            </div>
+            {pastExpanded && hasMorePast && (
+              <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh]">
+                {renderGrid(past.slice(3))}
+              </div>
+            )}
+
+            {hasMorePast && (
+              <div className="px-[5vw] md:px-[3vw] pt-[6vh] md:pt-[8vh] pb-[10vh] md:pb-[12vh] flex justify-center">
+                <button
+                  onClick={() => setPastExpanded((v) => !v)}
+                  className="group inline-flex items-center gap-3 px-6 md:px-7 py-3 md:py-3.5 border border-white/40 rounded-full text-white text-xs md:text-sm uppercase tracking-[0.18em] font-semibold hover:bg-white hover:text-doma-text transition-colors duration-500"
+                >
+                  <span
+                    className={`inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[14px] leading-none transition-transform duration-300 ${pastExpanded ? '-rotate-45' : 'group-hover:rotate-90'}`}
+                  >
+                    {pastExpanded ? '−' : '+'}
+                  </span>
+                  <span>{pastExpanded ? 'Less Projects' : 'More Projects'}</span>
+                </button>
+              </div>
+            )}
+
+            {!hasMorePast && (
+              <div className="pb-[10vh] md:pb-[12vh]" />
+            )}
           </>
         )}
 

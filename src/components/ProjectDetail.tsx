@@ -39,13 +39,6 @@ export default function ProjectDetail({
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
   const [galleryIdx, setGalleryIdx] = useState(0);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const overviewRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -125,13 +118,40 @@ export default function ProjectDetail({
     triggerClose();
   };
 
-  const scrollTo = (target: React.RefObject<HTMLDivElement | null>) => {
-    const container = scrollRef.current;
-    const el = target.current;
-    if (!container || !el) return;
-    const top = el.offsetTop - 96;
-    container.scrollTo({ top, behavior: 'smooth' });
+  const goToGlobalContact = () => {
+    if (closing) return;
+    setClosing(true);
+    window.dispatchEvent(
+      new CustomEvent('contact:prefill', {
+        detail: {
+          project: project.title,
+          projectCategory: project.category,
+        },
+      })
+    );
+    window.setTimeout(() => {
+      onClose();
+      window.requestAnimationFrame(() => {
+        const el = document.getElementById('contact');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }, 720);
   };
+
+  const goToStatus = (status: 'present' | 'past') => {
+    if (closing) return;
+    setClosing(true);
+    window.setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent('projects:openCategory', {
+          detail: { category: project.category, status },
+        })
+      );
+      onClose();
+    }, 720);
+  };
+
+  const statusLabel = project.status === 'present' ? 'Present' : 'Past';
 
   const visible = entered && !closing;
 
@@ -152,79 +172,41 @@ export default function ProjectDetail({
           transition: `transform 800ms ${EASE}`,
         }}
       >
-        <div className="sticky top-0 z-30 flex flex-col gap-3 px-[5vw] md:px-[3vw] pt-[2vh] md:pt-[2.4vh] pb-[1.6vh] md:pb-[1.8vh] bg-[#0E0E0E]/70 backdrop-blur-sm">
-          <div className="flex items-center justify-between gap-3">
+        <div className="sticky top-0 z-30 px-[5vw] md:px-[3vw] pt-[2vh] md:pt-[2.4vh] pb-[1.6vh] md:pb-[1.8vh] bg-[#0E0E0E]/70 backdrop-blur-sm">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex items-center gap-2 md:gap-3 text-[10px] md:text-xs uppercase tracking-[0.16em] text-white/55 overflow-x-auto thin-scroll"
+            style={{ overscrollBehavior: 'contain' }}
+          >
             <button
               onClick={handleBack}
-              className="group inline-flex items-center gap-2 md:gap-3 text-white/80 hover:text-white transition-colors duration-300"
+              aria-label="Back"
+              className="group inline-flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/30 hover:border-white text-white/80 hover:text-white transition-colors duration-300 shrink-0"
             >
-              <span className="inline-flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full border border-white/30 group-hover:border-white transition-colors duration-300">
-                <span className="inline-block transition-transform duration-300 group-hover:-translate-x-0.5">←</span>
-              </span>
-              <span className="text-[10px] md:text-xs uppercase tracking-[0.16em]">
-                <span className="hidden sm:inline">Back to {backLabel}</span>
-                <span className="sm:hidden">Back</span>
+              <span className="inline-block transition-transform duration-300 group-hover:-translate-x-0.5">
+                ←
               </span>
             </button>
-            <nav
-              aria-label="Breadcrumb"
-              className="text-[10px] md:text-xs uppercase tracking-[0.16em] text-white/55 text-right truncate max-w-[55vw]"
-            >
-              <button
-                type="button"
-                onClick={goToHome}
-                className="hidden sm:inline hover:text-white transition-colors duration-300"
-              >
-                Doma Build
-              </button>
-              <span className="hidden sm:inline mx-2 text-white/25">/</span>
-              <button
-                type="button"
-                onClick={goToSelected}
-                className="hidden sm:inline hover:text-white transition-colors duration-300"
-              >
-                Selected Projects
-              </button>
-              {categoryLabel && (
-                <>
-                  <span className="hidden sm:inline mx-2 text-white/25">/</span>
-                  <button
-                    type="button"
-                    onClick={goToCategory}
-                    className="hidden sm:inline hover:text-white transition-colors duration-300"
-                  >
-                    {categoryLabel}
-                  </button>
-                </>
-              )}
-              <span className="hidden sm:inline mx-2 text-white/25">/</span>
-              <span className="text-white/85">{project.title}</span>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-1 md:gap-2 text-[10px] md:text-[11px] uppercase tracking-[0.16em]">
-            <button
-              type="button"
-              onClick={() => scrollTo(overviewRef)}
-              className="px-3 py-1.5 rounded-full border border-white/20 text-white/75 hover:text-white hover:border-white/60 transition-colors duration-300"
-            >
-              Overview
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollTo(galleryRef)}
-              className="px-3 py-1.5 rounded-full border border-white/20 text-white/75 hover:text-white hover:border-white/60 transition-colors duration-300"
-            >
-              Gallery
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollTo(contactRef)}
-              className="px-3 py-1.5 rounded-full border border-white/20 text-white/75 hover:text-white hover:border-white/60 transition-colors duration-300"
-            >
-              Contact
-            </button>
-          </div>
+            <BreadcrumbLink onClick={goToHome}>Doma Build</BreadcrumbLink>
+            <BreadcrumbSep />
+            <BreadcrumbLink onClick={goToSelected}>Projects</BreadcrumbLink>
+            {categoryLabel && (
+              <>
+                <BreadcrumbSep />
+                <BreadcrumbLink onClick={goToCategory}>
+                  {categoryLabel}
+                </BreadcrumbLink>
+              </>
+            )}
+            <BreadcrumbSep />
+            <BreadcrumbLink onClick={() => goToStatus(project.status)}>
+              {statusLabel}
+            </BreadcrumbLink>
+            <BreadcrumbSep />
+            <span className="text-white/90 whitespace-nowrap">
+              {project.title}
+            </span>
+          </nav>
         </div>
 
         <div ref={overviewRef} className="relative w-full h-[60vh] md:h-[78vh] overflow-hidden">
@@ -380,114 +362,78 @@ export default function ProjectDetail({
               Talk to us about {project.title}.
             </h3>
             <p className="text-white/65 text-[14px] md:text-[16px] leading-[1.65] max-w-[48ch] mb-7 md:mb-10">
-              Send us a note and we'll come back with a sensible next step — a
-              site visit, a similar reference, or a candid view of feasibility.
+              Use the website's contact form — we'll carry the project details
+              across so your message starts where this page leaves off.
             </p>
 
             <div className="space-y-2.5 md:space-y-3">
               <a
-                href="mailto:hello@domabuild.co.uk"
-                className="block text-[15px] md:text-[18px] break-all text-white hover:text-doma-gold transition-colors duration-300"
-              >
-                hello@domabuild.co.uk
-              </a>
-              <a
-                href="tel:+442079460123"
+                href="tel:+442087934511"
                 className="block text-[15px] md:text-[18px] text-white hover:text-doma-gold transition-colors duration-300"
               >
-                +44 (0)20 7946 0123
+                +44 (0)20 8793 4511
+              </a>
+              <a
+                href="tel:+447535697887"
+                className="block text-[15px] md:text-[18px] text-white hover:text-doma-gold transition-colors duration-300"
+              >
+                +44 (0)7535 697 887
               </a>
               <p className="text-white/45 text-[13px] md:text-[14px] leading-[1.6] pt-2">
-                Unit 4, Arches Industrial Estate
+                Doma Build Contractors Ltd
                 <br />
-                London E1 4RP
+                133 West Hendon Broadway
+                <br />
+                London, NW9 7DY
               </p>
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-sm rounded-md p-5 md:p-8">
-            {submitted ? (
-              <div className="h-full min-h-[280px] flex items-center justify-center">
-                <p className="text-doma-gold text-base md:text-lg text-center">
-                  Thank you. We will be in touch shortly.
-                </p>
+          <div className="bg-white/5 backdrop-blur-sm rounded-md p-6 md:p-8 flex flex-col justify-between gap-6">
+            <div>
+              <div className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-doma-gold mb-3">
+                We'll carry across
               </div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSubmitted(true);
-                  window.setTimeout(() => setSubmitted(false), 3000);
-                }}
-                className="space-y-5"
-              >
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors"
-                    placeholder="Your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors"
-                    placeholder="your@email.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors"
-                    placeholder="+44..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    required
-                    rows={3}
-                    value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
-                    className="w-full bg-transparent border-b border-white/20 py-2 text-white placeholder-white/30 focus:border-doma-gold focus:outline-none transition-colors resize-none"
-                    placeholder={`Tell us about ${project.title}...`}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="mt-2 px-8 py-3 border border-doma-gold text-doma-gold text-sm uppercase tracking-wider rounded-full hover:bg-doma-gold hover:text-doma-dark transition-colors duration-300"
-                >
-                  Send
-                </button>
-              </form>
-            )}
+              <ul className="space-y-2.5 md:space-y-3">
+                <li className="flex items-baseline gap-3 text-white/85">
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-white/45 w-20 shrink-0">
+                    Project
+                  </span>
+                  <span className="text-[15px] md:text-[16px] font-serif">
+                    {project.title}
+                  </span>
+                </li>
+                {categoryLabel && (
+                  <li className="flex items-baseline gap-3 text-white/85">
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-white/45 w-20 shrink-0">
+                      Category
+                    </span>
+                    <span className="text-[15px] md:text-[16px]">
+                      {categoryLabel}
+                    </span>
+                  </li>
+                )}
+                <li className="flex items-baseline gap-3 text-white/85">
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-white/45 w-20 shrink-0">
+                    Location
+                  </span>
+                  <span className="text-[15px] md:text-[16px]">
+                    {project.location}
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <button
+              type="button"
+              onClick={goToGlobalContact}
+              className="group inline-flex items-center justify-center gap-3 px-6 md:px-7 py-3 md:py-3.5 border border-doma-gold text-doma-gold text-xs md:text-sm uppercase tracking-[0.18em] rounded-full hover:bg-doma-gold hover:text-doma-dark transition-colors duration-300 self-start"
+            >
+              <span>Open contact form</span>
+              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
+            </button>
           </div>
         </div>
 
@@ -518,5 +464,27 @@ function Detail({ label, value }: { label: string; value: string }) {
       </div>
     </div>
   );
+}
+
+function BreadcrumbLink({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-white/55 hover:text-white transition-colors duration-300 whitespace-nowrap"
+    >
+      {children}
+    </button>
+  );
+}
+
+function BreadcrumbSep() {
+  return <span className="text-white/25 shrink-0">/</span>;
 }
 

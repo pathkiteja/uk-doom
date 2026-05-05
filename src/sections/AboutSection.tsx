@@ -4,6 +4,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+type TeamMember = {
+  name: string;
+  role: string;
+  qualification?: string;
+};
+
 type AboutArea = {
   id: 'expertise' | 'team' | 'services';
   num: string;
@@ -13,6 +19,7 @@ type AboutArea = {
   image: string;
   highlights: { label: string; value: string }[];
   bullets?: string[];
+  team?: TeamMember[];
 };
 
 const areas: AboutArea[] = [
@@ -41,9 +48,35 @@ const areas: AboutArea[] = [
       'Our team is made up of experienced and skilled individuals who are passionate about what they do. From our project managers to our skilled tradespeople, we work together to ensure that every project is completed to the highest standard. We believe in building lasting relationships with our clients, and it shows in the way we approach every project.',
     image: '/about_site_work.jpg',
     highlights: [
-      { label: 'Senior leads', value: '6 partners' },
+      { label: 'Senior leads', value: '5' },
       { label: 'Trades on roster', value: '40+' },
       { label: 'Avg. tenure', value: '9 years' },
+    ],
+    team: [
+      {
+        name: 'Faisal Khojah',
+        role: 'Construction / Procurement Manager & Founder',
+        qualification: 'HND — Marketing & Business Management',
+      },
+      {
+        name: 'Venu Kalyan',
+        role: 'Project Manager',
+        qualification:
+          'MSc Construction Engineering Management · BE Civil Engineering',
+      },
+      {
+        name: 'Richard Mailes',
+        role: 'Senior Structural Engineer',
+      },
+      {
+        name: 'Victor Serrano',
+        role: 'Senior Site Manager',
+      },
+      {
+        name: 'Mohammed Ishaq',
+        role: 'Site Engineer',
+        qualification: 'Diploma in Civil Engineering',
+      },
     ],
   },
   {
@@ -81,11 +114,6 @@ const credentials: { value: string; label: string }[] = [
   { value: 'FMB', label: 'Federation accredited' },
 ];
 
-const goToContact = () => {
-  const el = document.getElementById('contact');
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
-
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
@@ -103,12 +131,13 @@ export default function AboutSection() {
         {
           y: 0,
           opacity: 1,
+          duration: 0.9,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: headingRef.current,
-            start: 'top 85%',
-            end: 'top 50%',
-            scrub: 0.5,
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+            once: true,
           },
         }
       );
@@ -120,12 +149,13 @@ export default function AboutSection() {
           y: 0,
           opacity: 1,
           stagger: 0.08,
+          duration: 0.8,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: credsRef.current,
-            start: 'top 85%',
-            end: 'top 55%',
-            scrub: 0.5,
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+            once: true,
           },
         }
       );
@@ -137,16 +167,21 @@ export default function AboutSection() {
           {
             y: 0,
             opacity: 1,
+            duration: 0.9,
             ease: 'power2.out',
             scrollTrigger: {
               trigger: el,
-              start: 'top 85%',
-              end: 'top 55%',
-              scrub: 0.6,
+              start: 'top 92%',
+              toggleActions: 'play none none none',
+              once: true,
             },
           }
         );
       });
+
+      // Safety net: refresh after layout in case fonts/images shift triggers,
+      // and force any rows already past the start to their final state.
+      ScrollTrigger.refresh();
     }, section);
 
     return () => ctx.revert();
@@ -218,26 +253,6 @@ export default function AboutSection() {
             reverse={idx % 2 === 1}
           />
         ))}
-      </div>
-
-      <div className="mt-[12vh] md:mt-[14vh] px-[5vw] md:px-[3vw] border-t border-doma-text/10 pt-[6vh] md:pt-[8vh] flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8">
-        <div>
-          <div className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-doma-muted mb-3 md:mb-4">
-            Next step
-          </div>
-          <h3 className="font-serif text-doma-text text-[clamp(24px,3.6vw,56px)] leading-[1.05] max-w-[26ch]">
-            Want to understand how we'd hold your build together?
-          </h3>
-        </div>
-        <button
-          onClick={goToContact}
-          className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full border border-doma-text text-doma-text text-xs md:text-sm uppercase tracking-[0.18em] font-semibold hover:bg-doma-text hover:text-doma-bg transition-colors duration-500 self-start md:self-auto shrink-0"
-        >
-          <span>Start a conversation</span>
-          <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
-            →
-          </span>
-        </button>
       </div>
     </section>
   );
@@ -311,6 +326,36 @@ function PillarRow({ area, reverse }: PillarProps) {
               </li>
             ))}
           </ul>
+        )}
+
+        {area.team && (
+          <div className="mt-7 md:mt-9 border-t border-doma-text/10 pt-5 md:pt-6">
+            <div className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-doma-gold mb-4 md:mb-5">
+              Senior team
+            </div>
+            <ul className="flex flex-col gap-4 md:gap-5">
+              {area.team.map((m) => (
+                <li
+                  key={m.name}
+                  className="flex flex-col sm:grid sm:grid-cols-[minmax(0,auto)_1fr] gap-1 sm:gap-x-4 md:gap-x-5 sm:items-baseline pb-3 md:pb-4 border-b border-doma-text/8"
+                >
+                  <span className="font-serif text-doma-text text-[17px] sm:text-[16px] md:text-[20px] leading-[1.15] sm:whitespace-nowrap">
+                    {m.name}
+                  </span>
+                  <div className="min-w-0 sm:text-right">
+                    <div className="text-[12px] md:text-[14px] text-doma-text/80 leading-[1.45]">
+                      {m.role}
+                    </div>
+                    {m.qualification && (
+                      <div className="text-[10px] md:text-[11px] text-doma-muted mt-1 leading-[1.45]">
+                        {m.qualification}
+                      </div>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>

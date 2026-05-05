@@ -36,9 +36,9 @@ export default function HeroSection() {
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: '+=80%',
+          end: '+=35%',
           pin: true,
-          scrub: 0.6,
+          scrub: 0.25,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onLeaveBack: () => {
@@ -67,14 +67,14 @@ export default function HeroSection() {
         '--glass-blur': '8px',
       });
 
-      // Blur intensifies as user scrolls (0 -> 0.85 of scroll)
+      // Blur intensifies as user scrolls (0 -> 0.7 of scroll)
       scrollTl.fromTo(
         glassRef.current,
         { '--glass-blur': '8px' },
         {
-          '--glass-blur': '36px',
+          '--glass-blur': '28px',
           ease: 'none',
-          duration: 0.85,
+          duration: 0.7,
         },
         0
       );
@@ -82,15 +82,15 @@ export default function HeroSection() {
       // Background subtle parallax across full scroll
       scrollTl.to(
         bgRef.current,
-        { scale: 1.06, y: '-6vh', ease: 'none', duration: 1 },
+        { scale: 1.04, y: '-4vh', ease: 'none', duration: 1 },
         0
       );
 
-      // EXIT — wordmark and glass fade out tightly at the end (0.85 -> 1.0)
+      // EXIT — wordmark and glass fade out tightly at the end (0.7 -> 1.0)
       scrollTl.to(
         wordmarkRef.current,
-        { y: '-14vh', opacity: 0, ease: 'power2.in', duration: 0.15 },
-        0.85
+        { y: '-10vh', opacity: 0, ease: 'power2.in', duration: 0.3 },
+        0.7
       );
 
       scrollTl.to(
@@ -99,9 +99,9 @@ export default function HeroSection() {
           opacity: 0,
           scale: 0.96,
           ease: 'power2.in',
-          duration: 0.15,
+          duration: 0.3,
         },
-        0.85
+        0.7
       );
     }, section);
 
@@ -138,9 +138,14 @@ export default function HeroSection() {
         ref={wordmarkRef}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-center will-change-transform z-10 w-full px-6"
       >
-        <span className="wordmark block whitespace-nowrap">
-          <span className="word inline-block">DOMA</span>{' '}
-          <span className="word inline-block">BUILD</span>
+        <span className="wordmark block">
+          <span className="block whitespace-nowrap">
+            <span className="word inline-block">DOMA</span>{' '}
+            <span className="word inline-block">BUILD</span>
+          </span>
+          <span className="word block mt-2 md:mt-3 text-[clamp(11px,2.6vw,18px)] tracking-[0.24em] sm:tracking-[0.3em] uppercase font-sans font-medium text-white/85 whitespace-nowrap">
+            Contractors Ltd
+          </span>
         </span>
       </h1>
     </section>
